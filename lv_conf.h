@@ -208,7 +208,7 @@
  *
  *  Enable: LV_USE_MATRIX
  */
-#define LV_USE_VECTOR_GRAPHIC 1
+#define LV_USE_VECTOR_GRAPHIC 0
 
 /** Render a widget and its children into an image buffer with lv_snapshot_take(). */
 #define LV_USE_SNAPSHOT 0
@@ -218,7 +218,7 @@
 
 #if LV_USE_THORVG
 /** Build the ThorVG copy shipped with LVGL instead of linking an external one. */
-#define LV_USE_THORVG_INTERNAL 1 
+#define LV_USE_THORVG_INTERNAL 1
 
 #endif /*LV_USE_THORVG*/
 
