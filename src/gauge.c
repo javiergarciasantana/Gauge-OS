@@ -8,6 +8,64 @@ LV_IMAGE_DECLARE(oil_temp);
 LV_IMAGE_DECLARE(water_temp);
 LV_IMAGE_DECLARE(battery_voltage);
 
+
+// Global configurations (NO 'static' keyword)
+const gauge_config_t OIL_PRESS_CONFIG = {
+    .type = PARAM_OIL_PRESS,
+    .min_val = 0.0, .max_val = 5.0,
+    .mid_val_pos = 4,
+    .red_line_begin = 2.0f, .red_line_end = 8.0f, // 0.0 to 1.0 bar
+    .n_ticks = 6,
+    .unit = "bar",
+    .show_redline = true,
+    .redline_color = 0xE60000,
+    .bg_image = &gauge_bgnd,
+    .icon_image = &oil_pressure
+};
+
+const gauge_config_t WATER_TEMP_CONFIG = {
+    .type = PARAM_WATER_TEMP,
+    .min_val = 45.0, .max_val = 135.0,
+    .mid_val_pos = 2,
+    .red_line_begin = 1050.0f, .red_line_end = 1296.0f, // 105 to 150ish °C
+    .n_ticks = 5,
+    .unit = "ºC",
+    .show_redline = true,
+    .redline_color = 0xE60000,
+    .bg_image = &gauge_bgnd,
+    .icon_image = &water_temp
+
+};
+
+const gauge_config_t BATTERY_VOLTAGE_CONFIG = {
+    .type = PARAM_BATTERY_VOLTAGE,
+    .min_val = 10.0, .max_val = 15.0,
+    .mid_val_pos = 3,
+    .red_line_begin = 102.0f, .red_line_end = 122.0f, // 10.2 to 12.2ish °C
+    .n_ticks = 6,
+    .unit = "V",
+    .show_redline = true,
+    .redline_color = 0xE60000,
+    .bg_image = &gauge_bgnd,
+    .icon_image = &battery_voltage
+
+};
+
+const gauge_config_t OIL_TEMP_CONFIG = {
+    .type = PARAM_OIL_TEMP,
+    .min_val = 60.0, .max_val = 140.0,
+    .mid_val_pos = 2,
+    .red_line_begin = 1150.0f, .red_line_end = 1370.0f, // 115 to 140ish °C
+    .n_ticks = 5,
+    .unit = "ºC",
+    .show_redline = true,
+    .redline_color = 0xE60000,
+    .bg_image = &gauge_bgnd,
+    .icon_image = &oil_temp
+
+};
+
+
 // Static instances storage
 static gauge_t * active_gauges[MAX_ACTIVE_GAUGES] = { NULL };
 static int active_gauge_count = 0;
@@ -218,59 +276,3 @@ gauge_t * gauge_create(lv_obj_t * parent, int x_pos, const gauge_config_t * cfg)
 void gauge_destroy(gauge_t * g) {
   if (!g) return;
 }
-
-// Global configurations (NO 'static' keyword)
-const gauge_config_t OIL_PRESS_CONFIG = {
-    .type = PARAM_OIL_PRESS,
-    .min_val = 0.0, .max_val = 5.0,
-    .mid_val_pos = 4,
-    .red_line_begin = 2.0f, .red_line_end = 8.0f, // 0.0 to 1.0 bar
-    .n_ticks = 6,
-    .unit = "bar",
-    .show_redline = true,
-    .redline_color = 0xE60000,
-    .bg_image = &gauge_bgnd,
-    .icon_image = &oil_pressure
-};
-
-const gauge_config_t WATER_TEMP_CONFIG = {
-    .type = PARAM_WATER_TEMP,
-    .min_val = 45.0, .max_val = 135.0,
-    .mid_val_pos = 2,
-    .red_line_begin = 1050.0f, .red_line_end = 1296.0f, // 105 to 150ish °C
-    .n_ticks = 5,
-    .unit = "ºC",
-    .show_redline = true,
-    .redline_color = 0xE60000,
-    .bg_image = &gauge_bgnd,
-    .icon_image = &water_temp
-
-};
-
-const gauge_config_t BATTERY_VOLTAGE_CONFIG = {
-    .type = PARAM_BATTERY_VOLTAGE,
-    .min_val = 10.0, .max_val = 15.0,
-    .mid_val_pos = 3,
-    .red_line_begin = 102.0f, .red_line_end = 122.0f, // 10.2 to 12.2ish °C
-    .n_ticks = 6,
-    .unit = "V",
-    .show_redline = true,
-    .redline_color = 0xE60000,
-    .bg_image = &gauge_bgnd,
-    .icon_image = &battery_voltage
-
-};
-
-const gauge_config_t OIL_TEMP_CONFIG = {
-    .type = PARAM_OIL_TEMP,
-    .min_val = 60.0, .max_val = 140.0,
-    .mid_val_pos = 2,
-    .red_line_begin = 1150.0f, .red_line_end = 1370.0f, // 115 to 140ish °C
-    .n_ticks = 5,
-    .unit = "ºC",
-    .show_redline = true,
-    .redline_color = 0xE60000,
-    .bg_image = &gauge_bgnd,
-    .icon_image = &oil_temp
-
-};

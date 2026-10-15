@@ -78,7 +78,7 @@ set(MAIN_SOURCES
   src/hal/hal.c
   src/gauge.c
   src/screen.c
-  src/screens.c
+  src/dashboard.c
   src/assets/gauge_bgnd.c
   src/assets/oil_pressure.c
   src/assets/oil_temp.c

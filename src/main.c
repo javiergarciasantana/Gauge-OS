@@ -46,8 +46,7 @@
 #include <SDL.h>
 
 #include "hal/hal.h"
-#include "gauge.h"
-#include "screens.h"
+#include "dashboard.h"
 
 #if LV_USE_OS != LV_OS_FREERTOS
 
@@ -106,8 +105,9 @@ int main(int argc, char **argv) {
     // Set background color
     lv_obj_set_style_bg_color(lv_screen_active(), COLOR_VAG_GR, LV_PART_MAIN);
 
+
     // 4. Initialize the dynamic carousel UI (replaces static gauge_create calls)
-    system_ui_init(g);
+    dashboard_create(g, &ANALOGUE, 480, 128);
 
     // Timers
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);
