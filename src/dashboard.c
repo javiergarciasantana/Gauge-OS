@@ -1,26 +1,26 @@
 #include "dashboard.h"
 
-static int configured_screen_count = 0;
-static int current_tile_col = 0;
+// static int configured_screen_count = 0;
+// static int current_tile_col = 0;
 
 /**
  * Key Event Callback: Allows switching TileView screens using Encoder / Arrow Keys
  */
 static void tile_key_nav_cb(lv_event_t * e) {
-    screen_t * s = (screen_t *)lv_event_get_user_data(e);
-
+    dashboard_system_t * sys = (screen_t *)lv_event_get_user_data(e);
+    if (!sys) return;
     uint32_t key = lv_event_get_key(e);
-    int total_tiles = configured_screen_count + 2; // Gauges + Add + Settings
+    int total_tiles = sys->screen_count + 2; // Gauges + Add + Settings
 
     if (key == LV_KEY_RIGHT) {
-        if (current_tile_col < total_tiles - 1) {
-            current_tile_col++;
-            lv_tileview_set_tile_by_index(s->tile_view, current_tile_col, 0, LV_ANIM_ON);
+        if (sys->current_screen_col < total_tiles - 1) {
+            sys->current_screen_col++;
+            lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
         }
     } else if (key == LV_KEY_LEFT) {
-        if (current_tile_col > 0) {
-            current_tile_col--;
-            lv_tileview_set_tile_by_index(s->tile_view, current_tile_col, 0, LV_ANIM_ON);
+        if (sys->current_screen_col > 0) {
+            sys->current_screen_col--;
+            lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
         }
     }
 }
@@ -50,16 +50,19 @@ static void reposition_screens(dashboard_system_t * sys) {
         // For now to identify, get the tile user_data
         screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
         if (type  == SETTINGS) {
-          lv_obj_set_pos(tile, (configured_screen_count + 1) * 480, 0);
+          printf("Screen type: settings\n");
+          lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
         } else if (type == EMPTY) {
-          lv_obj_set_pos(tile, configured_screen_count * 480, 0);
+          printf("Screen type: empty\n");
+          lv_obj_set_pos(tile, sys->screen_count * sys->width, 0);
         }
     }
 }
 
 void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
+    int new_col = sys->screen_count;
     // 1. Screen module creates the tile and its slot buttons
-    screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, sys->screen_count, sys);
+    screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys);
 
     // 2. Dashboard attaches its OWN navigation callback to the tile object
     lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
@@ -67,7 +70,10 @@ void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
     // 3. Dashboard manages layout and focus
     sys->screen_count++;
     reposition_screens(sys);
-    lv_tileview_set_tile_by_index(sys->tile_view, sys->screen_count - 1, 0, LV_ANIM_ON);
+
+    sys->current_screen_col = new_col;
+    lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
+    lv_group_focus_obj(scr->tile);
 }
 
 /**
@@ -88,10 +94,13 @@ dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * th
     sys->screen_count = 0;
     sys->current_screen_col = 0;
 
-    screen_t * emmpty_screen = screen_create(tileview, EMPTY, theme, gr, 0, sys->screen_count ,sys);
-    screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, sys->screen_count ,sys);
+    screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys);
+    screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys);
 
-    lv_obj_add_event_cb(tileview, tile_key_nav_cb, LV_EVENT_KEY, NULL);
+    /// Attach key navigation callback to static tiles as well!
+    lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);
+    lv_obj_add_event_cb(settings_screen->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
+
     lv_tileview_set_tile_by_index(tileview, 0, 0, LV_ANIM_OFF);
 
     return sys;

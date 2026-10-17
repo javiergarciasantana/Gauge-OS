@@ -22,7 +22,7 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
   // Read selected count (Index 0=1 gauge, 1=2 gauges, 2=3 gauges)
   uint16_t selected_cfg = lv_roller_get_selected(roller);
   int x_pos = (int)(uintptr_t)lv_obj_get_user_data(btn_unit);
-  printf("x position for gauge: %d\n", x_pos);
+  //printf("x position for gauge: %d\n", x_pos);
   lv_obj_t * tile_parent = s->tile;
 
   // MUST remove objects from encoder group BEFORE deleting parent container
@@ -90,7 +90,7 @@ static void add_btn_modal_cb(lv_event_t * e) {
   void * sys_ptr = lv_event_get_user_data(e);
   screen_t * s = (screen_t *)lv_obj_get_user_data(lv_event_get_target(e));
 
-  lv_obj_t * roller = lv_roller_create(s->tile_view);
+  lv_obj_t * roller = lv_roller_create(s->tile);
   lv_roller_set_options(roller, "1 Gauge\n2 Gauges\n3 Gauges", LV_ROLLER_MODE_INFINITE);
   lv_roller_set_visible_row_count(roller, 2);
   lv_obj_set_style_bg_color(roller, lv_color_hex(s->theme->roller_bgnd), LV_PART_MAIN);
