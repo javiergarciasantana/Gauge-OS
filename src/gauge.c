@@ -135,7 +135,7 @@ void gauge_update_value(gauge_t * g, float new_val) {
     //if (g->label)  lv_label_set_text_fmt(g->label, "%.1f %s", g->value, g->config.unit);
 }
 
-void gauge_update_value_by_type(const param_type_t * type, float new_val) {
+void gauge_update_value_by_type(param_type_t type, float new_val) {
     for (int i = 0; i < active_gauge_count; ++i) {
       if (active_gauges[i]->config.type == type) {
         gauge_update_value(active_gauges[i], new_val);

@@ -1,13 +1,10 @@
 #include "dashboard.h"
 
-// static int configured_screen_count = 0;
-// static int current_tile_col = 0;
-
 /**
  * Key Event Callback: Allows switching TileView screens using Encoder / Arrow Keys
  */
 static void tile_key_nav_cb(lv_event_t * e) {
-    dashboard_system_t * sys = (screen_t *)lv_event_get_user_data(e);
+    dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
     if (!sys) return;
     uint32_t key = lv_event_get_key(e);
     int total_tiles = sys->screen_count + 2; // Gauges + Add + Settings
@@ -37,71 +34,78 @@ void slot_select_confirm_cb(lv_event_t * e) {
     lv_group_remove_obj(roller);
     lv_obj_delete(roller);
 
+    if (selected_slots > sys->max_n_gauges_per_screen) return;
     // Dashboard creates the new screen directly
     dashboard_add_new_screen(sys, selected_slots);
 }
 
-static void reposition_screens(dashboard_system_t * sys) {
-      // 4. Reposition Add (+) and Settings tiles to stay on the far right
-      uint32_t total_tiles = lv_obj_get_child_count(sys->tile_view);
 
-      for (uint32_t i = 0; i < total_tiles; i++) {
-        lv_obj_t * tile = lv_obj_get_child(sys->tile_view, i);
-        // For now to identify, get the tile user_data
-        screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
-        if (type  == SETTINGS) {
-          printf("Screen type: settings\n");
-          lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
-        } else if (type == EMPTY) {
-          printf("Screen type: empty\n");
-          lv_obj_set_pos(tile, sys->screen_count * sys->width, 0);
-        }
+/*
+  Repositions Add (+) and Settings tiles to stay on the far right
+*/
+static void reposition_screens(dashboard_system_t * sys) {
+  uint32_t total_tiles = lv_obj_get_child_count(sys->tile_view);
+
+  for (uint32_t i = 0; i < total_tiles; i++) {
+    lv_obj_t * tile = lv_obj_get_child(sys->tile_view, i);
+    // For now to identify, get the tile user_data
+    screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
+    if (type  == SETTINGS) {
+      printf("Screen type: settings\n");
+      lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
+    } else if (type == EMPTY) {
+      printf("Screen type: empty\n");
+      lv_obj_set_pos(tile, sys->screen_count * sys->width, 0);
     }
+  }
 }
 
 void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
-    int new_col = sys->screen_count;
-    // 1. Screen module creates the tile and its slot buttons
-    screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys);
+  int new_col = sys->screen_count;
+  // 1. Screen module creates the tile and its slot buttons
+  screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys);
 
-    // 2. Dashboard attaches its OWN navigation callback to the tile object
-    lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
+  // 2. Dashboard attaches its OWN navigation callback to the tile object
+  lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
 
-    // 3. Dashboard manages layout and focus
-    sys->screen_count++;
-    reposition_screens(sys);
+  // 3. Dashboard manages layout and focus
+  sys->screen_count++;
+  reposition_screens(sys);
 
-    sys->current_screen_col = new_col;
-    lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
-    lv_group_focus_obj(scr->tile);
+  sys->current_screen_col = new_col;
+  lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
+  lv_group_focus_obj(scr->tile);
 }
 
 /**
  * Main Dynamic Carousel UI Initialization
  */
-dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * theme, int width, int height) {
-    lv_obj_t * tileview = lv_tileview_create(lv_screen_active());
-    lv_obj_remove_style_all(tileview);
-    lv_obj_set_size(tileview, width , height);
+dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * theme, int width, int height, uint8_t max_guges) {
+  // Set background color
+  lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(theme->main_bgnd), LV_PART_MAIN);
+  lv_obj_t * tileview = lv_tileview_create(lv_screen_active());
+  lv_obj_remove_style_all(tileview);
+  lv_obj_set_size(tileview, width , height);
 
-    dashboard_system_t * sys = (dashboard_system_t *)lv_malloc(sizeof(dashboard_system_t));
-    LV_ASSERT_MALLOC(sys);
-    sys->height = height;
-    sys->width = width;
-    sys->encoder_group = gr;
-    sys->theme = theme;
-    sys->tile_view = tileview;
-    sys->screen_count = 0;
-    sys->current_screen_col = 0;
+  dashboard_system_t * sys = (dashboard_system_t *)lv_malloc(sizeof(dashboard_system_t));
+  LV_ASSERT_MALLOC(sys);
+  sys->height = height;
+  sys->width = width;
+  sys->max_n_gauges_per_screen = max_guges;
+  sys->encoder_group = gr;
+  sys->tile_view = tileview;
+  sys->theme = theme;
+  sys->screen_count = 0;
+  sys->current_screen_col = 0;
 
-    screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys);
-    screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys);
+  screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys);
+  screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys);
 
-    /// Attach key navigation callback to static tiles as well!
-    lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);
-    lv_obj_add_event_cb(settings_screen->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
+  /// Attach key navigation callback to static tiles as well!
+  lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);
+  lv_obj_add_event_cb(settings_screen->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
 
-    lv_tileview_set_tile_by_index(tileview, 0, 0, LV_ANIM_OFF);
+  lv_tileview_set_tile_by_index(tileview, 0, 0, LV_ANIM_OFF);
 
-    return sys;
+  return sys;
 }

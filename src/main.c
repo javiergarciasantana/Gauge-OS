@@ -58,8 +58,8 @@ float bat_volt = 10.0f;
  **********************/
 
 static void sim_timer_cb(lv_timer_t * t) {
-    param_type_t * type = (param_type_t *)(uintptr_t)lv_timer_get_user_data(t);
-    switch ((int)type) {
+    param_type_t type = (param_type_t)(uintptr_t)lv_timer_get_user_data(t);
+    switch (type) {
       case PARAM_OIL_PRESS:
         if (oil_pr > 5.0) {
           oil_pr = 0.0f;
@@ -102,12 +102,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Set background color
-    lv_obj_set_style_bg_color(lv_screen_active(), COLOR_VAG_GR, LV_PART_MAIN);
-
-
-    // 4. Initialize the dynamic carousel UI (replaces static gauge_create calls)
-    dashboard_create(g, &ANALOGUE, 480, 128);
+    // Initialize the dynamic carousel UI (replaces static gauge_create calls)
+    dashboard_create(g, &ANALOGUE, 480, 128, 3);
 
     // Timers
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);

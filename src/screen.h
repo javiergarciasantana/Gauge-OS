@@ -3,9 +3,6 @@
 
 #include "gauge.h"
 
-#define MAX_SAVED_SCREENS 5
-#define MAX_GAUGES_PER_SCREEN 3
-
 typedef enum {
   EMPTY,
   POPULATED,
@@ -16,6 +13,8 @@ typedef enum {
 typedef struct {
   uint32_t roller_bgnd;
   uint32_t roller_selection;
+  int roller_outline_width;
+  uint32_t roller_outline_color;
   const lv_font_t * roller_font;
   const lv_font_t * button_font;
   uint32_t button_color;
@@ -27,6 +26,7 @@ typedef struct {
 
   const lv_font_t * main_font;
   uint32_t font_color;
+  uint32_t main_bgnd;
 
 } screen_theme_t;
 
@@ -35,8 +35,7 @@ typedef struct {
   screen_type_t type;
   const screen_theme_t * theme;
   lv_group_t * encoder_group;
-  lv_obj_t * tile_view;
-  lv_obj_t * tile;
+  lv_obj_t * tile; //this contains tileview as parent
   int selected_cfg;
 
 } screen_t;

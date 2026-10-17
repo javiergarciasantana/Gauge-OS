@@ -100,7 +100,7 @@ void gauge_update_value(gauge_t * g, float new_val);
 /**
  * Calls gauge_update_value to update all gauges that have the same param_type_t
  */
-void gauge_update_value_by_type(const param_type_t * type, float new_val);
+void gauge_update_value_by_type(param_type_t type, float new_val);
 
 
 
