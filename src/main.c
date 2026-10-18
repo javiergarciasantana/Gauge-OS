@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     }
 
     // Initialize the dynamic carousel UI (replaces static gauge_create calls)
-    dashboard_create(g, &ANALOGUE, 480, 128, 3);
+    dashboard_create(g, &DIGITAL, 480, 128, 3);
 
     // Timers
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);

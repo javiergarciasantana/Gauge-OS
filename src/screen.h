@@ -9,34 +9,17 @@ typedef enum {
   SETTINGS
 } screen_type_t;
 
-
 typedef struct {
-  uint32_t roller_bgnd;
-  uint32_t roller_selection;
-  int roller_outline_width;
-  uint32_t roller_outline_color;
-  const lv_font_t * roller_font;
-  const lv_font_t * button_font;
-  uint32_t button_color;
-  uint32_t button_outline_color;
-  int button_outline;
-  int plus_btn_h;
-  int plus_btn_w;
-  int unit_btn_w;
-
-  const lv_font_t * main_font;
-  uint32_t font_color;
-  uint32_t main_bgnd;
-
-} screen_theme_t;
-
-
-typedef struct {
-  screen_type_t type;
+  //Maye here declare also dashboard parent to omit having data duplicates? maybe use extern?
+  // const dashboard_system_t * sys;
   const screen_theme_t * theme;
+  screen_type_t type;
   lv_group_t * encoder_group;
   lv_obj_t * tile; //this contains tileview as parent
   int selected_cfg;
+  uint8_t max_gauges;
+  int width;
+  int height;
 
 } screen_t;
 
@@ -50,6 +33,9 @@ screen_t * screen_create(lv_obj_t * parent,
                          lv_group_t * encoder_group,
                          int selected_slots,
                          int col_index,
-                         void * user_data);
+                         int width,
+                         int height,
+                         uint8_t max_gauges,
+                         void* user_data);
 
 #endif

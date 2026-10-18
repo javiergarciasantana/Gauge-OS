@@ -76,6 +76,7 @@ include_directories(${PROJECT_SOURCE_DIR}/main/inc ${EEZ_UI_DIR})
 set(MAIN_SOURCES
   src/mouse_cursor_icon.c
   src/hal/hal.c
+  src/theme.c
   src/gauge.c
   src/screen.c
   src/dashboard.c
@@ -84,6 +85,7 @@ set(MAIN_SOURCES
   src/assets/oil_temp.c
   src/assets/water_temp.c
   src/assets/battery_voltage.c
+  src/assets/ui_font_vt323.c
   src/assets/ui_font_futura_bold.c
   ${EEZ_UI_DIR}/ui_font_eurostile_extended.c
   ${EEZ_UI_DIR}/ui_image_needle.c

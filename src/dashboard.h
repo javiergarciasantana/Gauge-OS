@@ -7,14 +7,14 @@
 
 
 typedef struct {
-    uint8_t max_n_gauges_per_screen;
-    uint8_t screen_count;// Total user screens
-    uint8_t current_screen_col;
-    lv_obj_t * tile_view;
-    lv_group_t * encoder_group;
-    const screen_theme_t * theme;
-    int height;
-    int width;
+  const screen_theme_t * theme;
+  lv_obj_t * tile_view;
+  lv_group_t * encoder_group;
+  uint8_t max_n_gauges_per_screen;
+  uint8_t screen_count;// Total user screens
+  uint8_t current_screen_col;
+  int height;
+  int width;
 
 } dashboard_system_t;
 

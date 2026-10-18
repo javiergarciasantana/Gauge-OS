@@ -63,7 +63,7 @@ static void reposition_screens(dashboard_system_t * sys) {
 void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
-  screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys);
+  screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
 
   // 2. Dashboard attaches its OWN navigation callback to the tile object
   lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
@@ -98,8 +98,8 @@ dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * th
   sys->screen_count = 0;
   sys->current_screen_col = 0;
 
-  screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys);
-  screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys);
+  screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys->width, sys->height, 0, sys);
+  screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys->width, sys->height, 0, sys);
 
   /// Attach key navigation callback to static tiles as well!
   lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);
