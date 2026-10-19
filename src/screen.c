@@ -30,7 +30,8 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
   }
 
   lv_obj_delete(btn_unit);
-  gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, &s->theme->gauge_theme, cfg);
+  gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, &s->theme->gauge_theme, cfg);
+  //gauge_print(g);
 }
 
 static void slot_select_unit_modal_cb(lv_event_t * e) {
@@ -81,6 +82,45 @@ static void add_btn_modal_cb(lv_event_t * e) {
   lv_group_set_editing(s->encoder_group, true);
 }
 
+void print_screen(const screen_t *s) {
+    if (!s) {
+        printf("null\n");
+        return;
+    }
+
+    printf("{\n");
+
+    // Theme Pointer
+    if (s->theme) {
+        printf("  \"theme\": \"%p\",\n", (const void *)s->theme);
+    } else {
+        printf("  \"theme\": null,\n");
+    }
+
+    // Enum Screen Type
+    printf("  \"type\": %d,\n", (int)s->type);
+
+    // LVGL Handle Pointers
+    if (s->encoder_group) {
+        printf("  \"encoder_group\": \"%p\",\n", (void *)s->encoder_group);
+    } else {
+        printf("  \"encoder_group\": null,\n");
+    }
+
+    if (s->tile) {
+        printf("  \"tile\": \"%p\",\n", (void *)s->tile);
+    } else {
+        printf("  \"tile\": null,\n");
+    }
+
+    // Integers & Scalars
+    printf("  \"max_gauges\": %u,\n", (unsigned int)s->max_gauges);
+    printf("  \"width\": %d,\n", s->width);
+    printf("  \"height\": %d\n", s->height);
+
+    printf("}\n");
+}
+
 screen_t * screen_create(lv_obj_t * parent,
                          screen_type_t type,
                          const screen_theme_t * theme,
@@ -94,6 +134,8 @@ screen_t * screen_create(lv_obj_t * parent,
 
   screen_t * s = (screen_t *)lv_malloc(sizeof(screen_t));
   LV_ASSERT_MALLOC(s);
+  memset(s, 0, sizeof(screen_t));
+
 
   s->type = type;
   s->theme = theme;
@@ -105,6 +147,7 @@ screen_t * screen_create(lv_obj_t * parent,
 
   switch ((int)s->type) {
     case SETTINGS:
+      s->max_gauges = max_gauges;
       tile = lv_tileview_add_tile(parent, 1, 0, LV_DIR_LEFT);
       lv_obj_set_user_data(tile, (void *)(uintptr_t)SETTINGS);
       lbl = lv_label_create(tile);
@@ -117,6 +160,7 @@ screen_t * screen_create(lv_obj_t * parent,
       break;
 
     case EMPTY:
+      s->max_gauges = max_gauges;
       tile = lv_tileview_add_tile(parent, 0, 0, LV_DIR_RIGHT);
       lv_obj_set_user_data(tile, (void *)(uintptr_t)EMPTY);
       lv_obj_t * btn = lv_button_create(tile);

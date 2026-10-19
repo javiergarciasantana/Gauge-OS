@@ -123,7 +123,7 @@ void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* cont
       lv_obj_set_style_text_color(lbl, lv_color_hex(theme->font_color), LV_PART_MAIN);
       lv_obj_center(lbl);
       break;
-
+    default: return;
   }
 }
 
@@ -171,7 +171,7 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
       lv_obj_set_style_text_font(obj, theme->label_font, LV_PART_MAIN);
       break;
     }
-    default: break;
+    default: return;
   }
 }
 

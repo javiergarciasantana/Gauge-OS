@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 // OEM Color Palette
 #define COLOR_VAG_GR      lv_color_hex(0x474b4e)
@@ -65,6 +67,13 @@ typedef struct {
   uint32_t cap_color;
   uint32_t cap_border_color;
   uint8_t cap_radius;
+
+  const lv_font_t * title_font;
+  uint32_t title_font_color;    // Active digit/text color
+  int title_x_ofs;
+  int title_y_ofs;
+  lv_align_t title_align;
+  bool show_title;
 
   const lv_font_t * label_font;
   uint32_t label_font_color;    // Active digit/text color

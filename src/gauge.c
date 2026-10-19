@@ -72,10 +72,11 @@ static void needle_draw_cb(lv_event_t * e) {
     lv_area_t coords;
     lv_obj_get_coords(obj, &coords);
 
-    float center_x = coords.x1 + (SLOT_WIDTH / 2.0f);
-    float center_y = coords.y1 + (SLOT_HEIGHT / 2.0f) + LOWERING_AMM;
-
     gauge_t * g = (gauge_t *)lv_event_get_user_data(e);
+
+    float center_x = coords.x1 + (SLOT_WIDTH / 2.0f);
+    float center_y = coords.y1 + (SLOT_HEIGHT / 2.0f) + g->theme.scale_y_ofs;
+
     float angle_rad = g->current_needle_angle_rad;
     float perp_angle = angle_rad + 1.57079632679f;
 
@@ -127,8 +128,12 @@ static void register_gauge(gauge_t* g) {
 gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, const int height, const gauge_theme_t * theme, const gauge_config_t * cfg) {
   assert(cfg->mid_val_pos < GAUGE_MAX_TICKS && "position of mid_val out of bounds");
   assert(cfg->mid_val_pos >= 0 && "position of mid_val cannot be negative");
+  // Allocate heap memory
   gauge_t * g = (gauge_t *)lv_malloc(sizeof(gauge_t));
+  // Assert allocation succeeded (halts or logs if memory allocation failed)
   LV_ASSERT_MALLOC(g);
+  // Zero out all fields (sets all ints/floats to 0, pointers to NULL, bools to false)
+  memset(g, 0, sizeof(gauge_t)); // or lv_memset(g, 0, sizeof(gauge_t));
 
   g->config = *cfg;
   g->theme = *theme;
@@ -211,8 +216,12 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
     apply_gauge_theme(cap, &g->theme, g->scale, CAP);
 
   } else {
-
-
+    // g->scale = NULL;
+    // g->needle = NULL;
+    // g->start_label[0] = '\0';
+    // g->mid_label[0] = '\0';
+    // // Fast clear using memset
+    // memset(g->custom_labels, 0, sizeof(g->custom_labels));
   }
 
   // Readout Label
@@ -249,7 +258,71 @@ void gauge_update_value_by_type(param_type_t type, float new_val) {
     }
 }
 
-
 void gauge_destroy(gauge_t * g) {
   if (!g) return;
+}
+
+void gauge_print(const gauge_t *g) {
+    if (!g) {
+        printf("null\n");
+        return;
+    }
+
+    printf("{\n");
+
+    // 1. Dimensions & LVGL Widget Handles
+    printf("  \"width\": %d,\n", g->width);
+    printf("  \"height\": %d,\n", g->height);
+    printf("  \"scale\": %s,\n", g->scale ? "\"0x" : "null");
+    if (g->scale) printf("%p\"", (void *)g->scale);
+    printf("  \"needle\": %s,\n", g->needle ? "\"0x" : "null");
+    if (g->needle) printf("%p\"", (void *)g->needle);
+    printf("  \"label\": %s,\n", g->label ? "\"0x" : "null");
+    if (g->label) printf("%p\"", (void *)g->label);
+
+    // 2. Dynamic Runtime Values
+    printf("  \"value\": %.2f,\n", g->value);
+    printf("  \"current_needle_angle_rad\": %.4f,\n", g->current_needle_angle_rad);
+
+    // 3. Persistent Label Arrays
+    printf("  \"start_label\": \"%s\",\n", g->start_label);
+    printf("  \"mid_label\": \"%s\",\n", g->mid_label);
+    printf("  \"end_label\": \"%s\",\n", g->end_label);
+
+    // 4. Custom Labels JSON Array
+    printf("  \"custom_labels\": [");
+    for (int i = 0; i < GAUGE_MAX_TICKS; i++) {
+        if (g->custom_labels[i]) {
+            printf("%s\"%s\"", (i > 0) ? ", " : "", g->custom_labels[i]);
+        } else {
+            printf("%snull", (i > 0) ? ", " : "");
+        }
+    }
+    printf("],\n");
+
+    // 5. Theme Address Handle
+    printf("  \"theme\": \"%p\",\n", (const void *)&g->theme);
+
+    // 6. Embedded gauge_config_t Struct
+    printf("  \"config\": {\n");
+    printf("    \"type\": %d,\n", (int)g->config.type);
+    printf("    \"min_val\": %.2f,\n", g->config.min_val);
+    printf("    \"max_val\": %.2f,\n", g->config.max_val);
+    printf("    \"mid_val_pos\": %d,\n", g->config.mid_val_pos);
+    printf("    \"ticks_period\": %u,\n", (unsigned int)g->config.ticks_period);
+    printf("    \"show_redline\": %s,\n", g->config.show_redline ? "true" : "false");
+    printf("    \"red_line_begin\": %.2f,\n", g->config.red_line_begin);
+    printf("    \"red_line_end\": %.2f,\n", g->config.red_line_end);
+    printf("    \"n_ticks\": %d,\n", g->config.n_ticks);
+    printf("    \"unit\": %s%s%s,\n",
+           g->config.unit ? "\"" : "",
+           g->config.unit ? g->config.unit : "null",
+           g->config.unit ? "\"" : "");
+    printf("    \"bg_image\": %s,\n", g->config.bg_image ? "\"0x" : "null");
+    if (g->config.bg_image) printf("%p\"", (const void *)g->config.bg_image);
+    printf("    \"icon_image\": %s\n", g->config.icon_image ? "\"0x" : "null");
+    if (g->config.icon_image) printf("%p\"", (const void *)g->config.icon_image);
+    printf("  }\n");
+
+    printf("}\n");
 }

@@ -39,7 +39,6 @@ void slot_select_confirm_cb(lv_event_t * e) {
     dashboard_add_new_screen(sys, selected_slots);
 }
 
-
 /*
   Repositions Add (+) and Settings tiles to stay on the far right
 */
@@ -51,10 +50,8 @@ static void reposition_screens(dashboard_system_t * sys) {
     // For now to identify, get the tile user_data
     screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
     if (type  == SETTINGS) {
-      printf("Screen type: settings\n");
       lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
     } else if (type == EMPTY) {
-      printf("Screen type: empty\n");
       lv_obj_set_pos(tile, sys->screen_count * sys->width, 0);
     }
   }
@@ -64,7 +61,7 @@ void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
   screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
-
+  //print_screen(scr);
   // 2. Dashboard attaches its OWN navigation callback to the tile object
   lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
 
@@ -100,6 +97,9 @@ dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * th
 
   screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys->width, sys->height, 0, sys);
   screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys->width, sys->height, 0, sys);
+
+  // print_screen(empty_screen);
+  // print_screen(settings_screen);
 
   /// Attach key navigation callback to static tiles as well!
   lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);

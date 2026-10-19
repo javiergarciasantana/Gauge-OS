@@ -12,9 +12,7 @@
 #define MAX_WIDTH        480
 #define SLOT_WIDTH       160
 #define SLOT_HEIGHT      128
-#define LOWERING_AMM     50
 #define GAUGE_MAX_TICKS  10
-#define GAUGE_MAX_SLOTS  3
 #define MAX_ACTIVE_GAUGES 12
 
 /**********************
@@ -89,6 +87,11 @@ void gauge_update_value(gauge_t * g, float new_val);
  */
 void gauge_update_value_by_type(param_type_t type, float new_val);
 
+/**
+ * Prints all gauge_t attributes and also the gauge_config_t attributes
+ */
+
+void gauge_print(const gauge_t *g);
 
 // Configurations
 extern const gauge_theme_t GAUGE_ANALOGUE;
