@@ -13,7 +13,7 @@
 #define SLOT_WIDTH       160
 #define SLOT_HEIGHT      128
 #define GAUGE_MAX_TICKS  10
-#define MAX_ACTIVE_GAUGES 12
+#define MAX_ACTIVE_GAUGES 9
 
 /**********************
  *      TYPEDEFS
@@ -41,6 +41,7 @@ typedef struct {
     float red_line_end;
     int n_ticks;
     const char * unit;
+    const char * title_content;
 
     const lv_image_dsc_t * bg_image;
     const lv_image_dsc_t * icon_image;
@@ -53,6 +54,7 @@ typedef struct {
     lv_obj_t * scale;
     lv_obj_t * needle;
     lv_obj_t * label;
+    lv_obj_t * title;
 
     gauge_theme_t theme;
     gauge_config_t config; // Copy of this gauge's parameters
@@ -96,6 +98,7 @@ void gauge_print(const gauge_t *g);
 // Configurations
 extern const gauge_theme_t GAUGE_ANALOGUE;
 extern const gauge_theme_t GAUGE_DIGITAL;
+
 
 extern const gauge_config_t OIL_PRESS_CONFIG;
 extern const gauge_config_t WATER_TEMP_CONFIG;

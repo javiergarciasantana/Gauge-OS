@@ -2,6 +2,7 @@
 #include "string.h"
 
 extern void slot_select_confirm_cb(lv_event_t * e);
+extern void slot_select_theme_cb(lv_event_t * e);
 
 static void slot_select_confirm_gauge_cb(lv_event_t * e) {
 
@@ -82,6 +83,131 @@ static void add_btn_modal_cb(lv_event_t * e) {
   lv_group_set_editing(s->encoder_group, true);
 }
 
+
+void change_screen_theme(screen_t * scr, const screen_theme_t* theme) {
+
+  lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(theme->main_bgnd), LV_PART_MAIN);
+  lv_obj_t * parent = scr->tile;
+  if (!parent) return;
+
+  scr->theme = theme;
+  uint32_t child_count = lv_obj_get_child_count(parent);
+
+  for (uint32_t i = 0; i < child_count; i++) {
+    lv_obj_t * child = lv_obj_get_child(parent, i);
+    // Switch on mapped enum value
+    switch (get_widget_type(child)) {
+      case BTN:
+      apply_screen_theme(child, theme, NULL, BTN);
+      break;
+      case ROLLER:
+      apply_screen_theme(child, theme, NULL, ROLLER);
+      break;
+      case LABEL:
+      apply_screen_theme(child, theme, NULL, LABEL);
+      break;
+      case ICON:
+      apply_screen_theme(child, theme, NULL, BTN);
+      break;
+      default:
+      break;
+    }
+    printf("obj type: %d\n", get_widget_type(child));
+  }
+
+}
+
+screen_t * screen_create(lv_obj_t * parent,
+  screen_type_t type,
+  const screen_theme_t * theme,
+  lv_group_t * encoder_group,
+  int selected_slots,
+  int col_index,
+  int width,
+  int height,
+  uint8_t max_gauges,
+  void* user_data) {
+
+    screen_t * s = (screen_t *)lv_malloc(sizeof(screen_t));
+    LV_ASSERT_MALLOC(s);
+    memset(s, 0, sizeof(screen_t));
+
+
+    s->type = type;
+    s->theme = theme;
+    s->encoder_group = encoder_group;
+    s->width = width;
+    s->height = height;
+    lv_obj_t * tile = NULL;
+    lv_obj_t * lbl = NULL;
+
+    switch ((int)s->type) {
+      case SETTINGS:
+      s->max_gauges = max_gauges;
+      tile = lv_tileview_add_tile(parent, 1, 0, LV_DIR_LEFT);
+      lv_obj_set_user_data(tile, (void *)(uintptr_t)SETTINGS);
+      lv_group_add_obj(encoder_group, tile);
+      lbl = lv_label_create(tile);
+      apply_screen_theme(lbl, s->theme, "SETTINGS", LABEL);
+
+      lv_obj_t * roller = lv_roller_create(tile);
+      char options[] = "DIGITAL";
+      if (s->theme->caps_lock) to_upper(options);
+      apply_screen_theme(roller, s->theme, options, ROLLER);
+      lv_obj_align(roller, LV_ALIGN_CENTER, 0, 0);
+      lv_obj_add_event_cb(roller, slot_select_theme_cb, LV_EVENT_CLICKED, user_data);
+
+      // Add to group and AUTO-ENTER editing mode for roller
+      lv_group_add_obj(s->encoder_group, roller);
+      lv_group_focus_obj(roller);
+      lv_group_set_editing(s->encoder_group, true); // Enables immediate scrolling without extra click
+      break;
+
+      case EMPTY:
+      s->max_gauges = max_gauges;
+      tile = lv_tileview_add_tile(parent, 0, 0, LV_DIR_RIGHT);
+      lv_obj_set_user_data(tile, (void *)(uintptr_t)EMPTY);
+      lv_obj_t * btn = lv_button_create(tile);
+      lv_obj_set_size(btn, s->theme->plus_btn_w, s->theme->plus_btn_h);
+      lv_obj_center(btn);
+      apply_screen_theme(btn, s->theme, "+", BTN);
+
+      // Save screen context onto the button so add_btn_modal_cb can find s->tile
+      lv_obj_set_user_data(btn, s);
+
+      //Calling next function with pointer as last param :)
+      lv_obj_add_event_cb(btn, add_btn_modal_cb, LV_EVENT_CLICKED, user_data);
+      lv_group_add_obj(encoder_group, btn);
+      break;
+
+      case POPULATED:
+      s->max_gauges = max_gauges;
+      tile = lv_tileview_add_tile(parent, col_index, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
+      lv_obj_set_user_data(tile, (void *)(uintptr_t)POPULATED);
+
+      int button_x_pos;
+
+      // Populate requested gauge count inside new tile
+      for (int i = 0; i < selected_slots; i++) {
+        lv_obj_t * btn_unit = lv_button_create(tile);
+        lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
+        button_x_pos = ((MAX_WIDTH / selected_slots) * i + (MAX_WIDTH / selected_slots / 2));
+        lv_obj_set_pos(btn_unit, button_x_pos - s->theme->unit_btn_w / 2, s->theme->plus_btn_h / 2);
+        char btn_content[] = "Select...";
+        if(s->theme->caps_lock) to_upper(btn_content);
+        apply_screen_theme(btn_unit, s->theme, btn_content, BTN);
+
+        lv_obj_set_user_data(btn_unit, (void *)(uintptr_t)(button_x_pos - (SLOT_WIDTH / 2)));
+
+        lv_obj_add_event_cb(btn_unit, slot_select_unit_modal_cb, LV_EVENT_CLICKED, s);
+      }
+
+      lv_group_add_obj(encoder_group, tile);
+    }
+    s->tile = tile;
+    return s;
+  }
+
 void print_screen(const screen_t *s) {
     if (!s) {
         printf("null\n");
@@ -119,87 +245,4 @@ void print_screen(const screen_t *s) {
     printf("  \"height\": %d\n", s->height);
 
     printf("}\n");
-}
-
-screen_t * screen_create(lv_obj_t * parent,
-                         screen_type_t type,
-                         const screen_theme_t * theme,
-                         lv_group_t * encoder_group,
-                         int selected_slots,
-                         int col_index,
-                         int width,
-                         int height,
-                         uint8_t max_gauges,
-                         void* user_data) {
-
-  screen_t * s = (screen_t *)lv_malloc(sizeof(screen_t));
-  LV_ASSERT_MALLOC(s);
-  memset(s, 0, sizeof(screen_t));
-
-
-  s->type = type;
-  s->theme = theme;
-  s->encoder_group = encoder_group;
-  s->width = width;
-  s->height = height;
-  lv_obj_t * tile = NULL;
-  lv_obj_t * lbl = NULL;
-
-  switch ((int)s->type) {
-    case SETTINGS:
-      s->max_gauges = max_gauges;
-      tile = lv_tileview_add_tile(parent, 1, 0, LV_DIR_LEFT);
-      lv_obj_set_user_data(tile, (void *)(uintptr_t)SETTINGS);
-      lbl = lv_label_create(tile);
-      lv_label_set_text(lbl, "SETTINGS");
-      lv_obj_set_style_text_font(lbl, s->theme->main_font, LV_PART_MAIN);
-      lv_obj_set_style_text_color(lbl, lv_color_hex(s->theme->font_color), LV_PART_MAIN);
-      lv_obj_center(lbl);
-      //Pending implementation...
-      lv_group_add_obj(encoder_group, tile);
-      break;
-
-    case EMPTY:
-      s->max_gauges = max_gauges;
-      tile = lv_tileview_add_tile(parent, 0, 0, LV_DIR_RIGHT);
-      lv_obj_set_user_data(tile, (void *)(uintptr_t)EMPTY);
-      lv_obj_t * btn = lv_button_create(tile);
-      lv_obj_set_size(btn, s->theme->plus_btn_w, s->theme->plus_btn_h);
-      lv_obj_center(btn);
-      apply_screen_theme(btn, s->theme, "+", BTN);
-
-      // Save screen context onto the button so add_btn_modal_cb can find s->tile
-      lv_obj_set_user_data(btn, s);
-
-      //Calling next function with pointer as last param :)
-      lv_obj_add_event_cb(btn, add_btn_modal_cb, LV_EVENT_CLICKED, user_data);
-      lv_group_add_obj(encoder_group, btn);
-      break;
-
-    case POPULATED:
-      s->max_gauges = max_gauges;
-      tile = lv_tileview_add_tile(parent, col_index, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
-      lv_obj_set_user_data(tile, (void *)(uintptr_t)POPULATED);
-
-      int button_x_pos;
-
-      // Populate requested gauge count inside new tile
-      for (int i = 0; i < selected_slots; i++) {
-        lv_obj_t * btn_unit = lv_button_create(tile);
-        lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
-        button_x_pos = ((MAX_WIDTH / selected_slots) * i + (MAX_WIDTH / selected_slots / 2));
-        lv_obj_set_pos(btn_unit, button_x_pos - s->theme->unit_btn_w / 2, s->theme->plus_btn_h / 2);
-        char btn_content[] = "Select...";
-        if(s->theme->caps_lock) to_upper(btn_content);
-        apply_screen_theme(btn_unit, s->theme, btn_content, BTN);
-
-        lv_obj_set_user_data(btn_unit, (void *)(uintptr_t)(button_x_pos - (SLOT_WIDTH / 2)));
-
-        lv_obj_add_event_cb(btn_unit, slot_select_unit_modal_cb, LV_EVENT_CLICKED, s);
-      }
-
-      lv_group_add_obj(encoder_group, tile);
-  }
-  s->tile = tile;
-  return s;
 }

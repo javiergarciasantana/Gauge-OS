@@ -6,6 +6,8 @@
  *      GAUGE THEME DEFINITIONS
  ********************************/
 const gauge_theme_t GAUGE_ANALOGUE = {
+  .icon_color = 0xFFFFFF,
+
   .scale_width = 175, .scale_height = 175, .scale_range = 100,
   .scale_offset = 220, .scale_x_ofs = 0, .scale_y_ofs = 50,
   .scale_font = &ui_font_futura_bold, .scale_font_color = 0xFFFFFF,
@@ -17,22 +19,32 @@ const gauge_theme_t GAUGE_ANALOGUE = {
 
   .cap_color = 0x474b4e, .cap_border_color = 0x474b4e, .cap_radius = 55,
 
+  .show_title = false,
+
   .label_font = &ui_font_futura_bold, .label_font_color = 0xFFFFFF,
   .label_x_ofs = 60, .label_y_ofs = -20, .label_align = LV_ALIGN_BOTTOM_MID,
   .show_value = false,
 
   .show_analog_dial = true, .needle_color = 0xE60000,
-  .needle_base_width = 10.0f, .needle_length = 88.0f
+  .needle_base_width = 10.0f, .needle_length = 88.0f,
+
+  .caps_lock = false
 };
 
 const gauge_theme_t GAUGE_DIGITAL = {
-  .icon_color = 0x274250,
+  .icon_color = 0x274250, .icon_y_ofs = -60,
+
+  .title_font = &ui_font_vt323, .title_font_color = 0x274250,
+  .title_x_ofs = 0, .title_y_ofs = -15, .title_align = LV_ALIGN_CENTER,
+  .show_title = true,
 
   .label_font = &ui_font_vt323, .label_font_color = 0x274250,
-  .label_x_ofs = 0, .label_y_ofs = 0, .label_align = LV_ALIGN_BOTTOM_MID,
+  .label_x_ofs = 0, .label_y_ofs = 15, .label_align = LV_ALIGN_CENTER,
   .show_value = true,
 
   .show_analog_dial = false,
+
+  .caps_lock = true
 };
 
 /********************************
@@ -80,11 +92,26 @@ void to_upper(char *str) {
   }
 }
 
+theme_elem_t get_widget_type(const lv_obj_t * obj) {
+    if (!obj) return UNKOWN;
+
+    if (lv_obj_has_class(obj, &lv_button_class)) return BTN;
+    if (lv_obj_has_class(obj, &lv_roller_class)) return ROLLER;
+    if (lv_obj_has_class(obj, &lv_label_class))  return LABEL;
+    if (lv_obj_has_class(obj, &lv_scale_class))  return SCALE;
+    if (lv_obj_has_class(obj, &lv_image_class))  return ICON;
+    if (lv_obj_get_class(obj) == &lv_obj_class)  return BASE;
+
+    return UNKOWN;
+}
+
 void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* content, const theme_elem_t elem) {
   if (!obj || !theme) return;
   switch (elem) {
     case ROLLER:
-      lv_roller_set_options(obj, content, LV_ROLLER_MODE_INFINITE);
+      if (content != NULL) {
+        lv_roller_set_options(obj, content, LV_ROLLER_MODE_INFINITE);
+      }
       lv_roller_set_visible_row_count(obj, 2);
       //Circle or Rectangle
       lv_obj_set_style_radius(obj, theme->obj_shape, 0);
@@ -116,13 +143,27 @@ void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* cont
       //Focus Ring Width
       lv_obj_set_style_outline_width(obj, theme->focus_ring_width, LV_STATE_FOCUS_KEY);
       lv_obj_set_style_outline_width(obj, theme->focus_ring_width, LV_STATE_EDITED);
-
-      lv_obj_t * lbl = lv_label_create(obj);
-      lv_label_set_text(lbl, content);
-      lv_obj_set_style_text_font(lbl, theme->main_font, LV_PART_MAIN);
-      lv_obj_set_style_text_color(lbl, lv_color_hex(theme->font_color), LV_PART_MAIN);
-      lv_obj_center(lbl);
+      lv_obj_t * lbl = NULL;
+      if (content != NULL) {
+        lbl = lv_label_create(obj);
+        lv_label_set_text(lbl, content);
+      } else {
+        lbl = lv_obj_get_child(obj, 0);
+      }
+      if (lbl) {
+        lv_obj_set_style_text_font(lbl, theme->main_font, LV_PART_MAIN);
+        lv_obj_set_style_text_color(lbl, lv_color_hex(theme->font_color), LV_PART_MAIN);
+        lv_obj_center(lbl);
+      }
       break;
+
+      case LABEL:
+        if (content != NULL) {
+          lv_label_set_text(obj, content);
+        }
+        lv_obj_set_style_text_font(obj, theme->main_font, LV_PART_MAIN);
+        lv_obj_set_style_text_color(obj, lv_color_hex(theme->font_color), LV_PART_MAIN);
+        lv_obj_center(obj);
     default: return;
   }
 }
@@ -169,6 +210,13 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
       lv_obj_align(obj, align, theme->label_x_ofs, theme->label_y_ofs);
       lv_obj_set_style_text_color(obj, lv_color_hex(theme->label_font_color), LV_PART_MAIN);
       lv_obj_set_style_text_font(obj, theme->label_font, LV_PART_MAIN);
+      break;
+    }
+    case TITLE: {
+      int align = (int)(uintptr_t)user_data;
+      lv_obj_align(obj, align, theme->title_x_ofs, theme->title_y_ofs);
+      lv_obj_set_style_text_color(obj, lv_color_hex(theme->title_font_color), LV_PART_MAIN);
+      lv_obj_set_style_text_font(obj, theme->title_font, LV_PART_MAIN);
       break;
     }
     default: return;

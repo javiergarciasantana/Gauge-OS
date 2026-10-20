@@ -23,6 +23,26 @@ static void tile_key_nav_cb(lv_event_t * e) {
 }
 
 /**
+ * Modal change theme(non static so that it can be linked)
+ */
+void slot_select_theme_cb(lv_event_t * e) {
+  dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
+  lv_obj_t * roller = lv_event_get_target(e);
+
+  uint16_t selected_slots = lv_roller_get_selected(roller) + 1;
+
+  // lv_group_remove_obj(roller);
+  // lv_obj_delete(roller);
+
+  sys->theme = &DIGITAL;
+  int total_screens = sys->screen_count + 2;
+
+  for (int i = 0; i < total_screens; ++i) {
+    change_screen_theme(sys->screens[i], &DIGITAL);
+  }
+}
+
+/**
  * Modal confirm event callback(non static so that it can be linked)
  */
 void slot_select_confirm_cb(lv_event_t * e) {
@@ -61,7 +81,7 @@ void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
   screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
-  //print_screen(scr);
+  sys->screens[sys->screen_count + 2] = scr;
   // 2. Dashboard attaches its OWN navigation callback to the tile object
   lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
 
@@ -97,9 +117,9 @@ dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * th
 
   screen_t * empty_screen = screen_create(tileview, EMPTY, theme, gr, 0, 0, sys->width, sys->height, 0, sys);
   screen_t * settings_screen = screen_create(tileview, SETTINGS, theme, gr, 0, 1, sys->width, sys->height, 0, sys);
+  sys->screens[0] = settings_screen;
+  sys->screens[1] = empty_screen;
 
-  // print_screen(empty_screen);
-  // print_screen(settings_screen);
 
   /// Attach key navigation callback to static tiles as well!
   lv_obj_add_event_cb(empty_screen->tile,tile_key_nav_cb, LV_EVENT_KEY, sys);

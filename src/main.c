@@ -52,6 +52,8 @@
 
 float oil_pr = 0.0f;
 float bat_volt = 10.0f;
+float cool_temp = 45.0f;
+
 
 /**********************
  *   STATIC FUNCTIONS
@@ -77,7 +79,13 @@ static void sim_timer_cb(lv_timer_t * t) {
         }
         gauge_update_value_by_type(type, bat_volt);
         break;
-
+      case PARAM_WATER_TEMP:
+        if(cool_temp > 135) {
+          cool_temp = 45.0f;
+        } else {
+          cool_temp += 1.0f;
+        }
+        gauge_update_value_by_type(type, cool_temp);
       default:
       break;
     }
@@ -103,13 +111,12 @@ int main(int argc, char **argv) {
     }
 
     // Initialize the dynamic carousel UI (replaces static gauge_create calls)
-    dashboard_create(g, &DIGITAL, 480, 128, 3);
+    dashboard_create(g, &ANALOGUE, 480, 128, 3);
 
     // Timers
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_BATTERY_VOLTAGE);
-    //lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);
-
+    lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_WATER_TEMP);
 
     while(1) {
       /* Periodically call the lv_task handler.

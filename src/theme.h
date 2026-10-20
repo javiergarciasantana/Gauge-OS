@@ -33,11 +33,14 @@ typedef enum {
   BTN,
   ROLLER,
   LABEL,
+  TITLE,
   SCALE,
   REDLINE,
   ICON,
   NEEDLE,
-  CAP
+  CAP,
+  BASE,
+  UNKOWN
 } theme_elem_t;
 
 typedef struct {
@@ -63,6 +66,7 @@ typedef struct {
   int redline_padding;
 
   uint32_t icon_color;
+  int icon_y_ofs;
 
   uint32_t cap_color;
   uint32_t cap_border_color;
@@ -82,11 +86,12 @@ typedef struct {
   lv_align_t label_align;
   bool show_value;
 
-
   bool show_analog_dial;       // True for needle/dial, False for digital LCD
   uint32_t needle_color;
   float needle_base_width;
   float needle_length;
+
+  bool caps_lock;
 } gauge_theme_t;
 
 
@@ -119,6 +124,7 @@ typedef struct {
 } screen_theme_t;
 
 void to_upper(char* str);
+theme_elem_t get_widget_type(const lv_obj_t * obj);
 void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* content, const theme_elem_t elem);
 void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem);
 void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme);

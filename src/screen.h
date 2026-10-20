@@ -11,7 +11,6 @@ typedef enum {
 
 typedef struct {
   //Maye here declare also dashboard parent to omit having data duplicates? maybe use extern?
-  // const dashboard_system_t * sys;
   const screen_theme_t * theme;
   screen_type_t type;
   lv_group_t * encoder_group;
@@ -27,6 +26,7 @@ extern const screen_theme_t ANALOGUE;
 extern const screen_theme_t DIGITAL;
 
 void screen_print(const screen_t * scr);
+void change_screen_theme(screen_t * scr, const screen_theme_t* theme);
 screen_t * screen_create(lv_obj_t * parent,
                          screen_type_t type,
                          const screen_theme_t * theme,

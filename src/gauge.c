@@ -12,6 +12,7 @@ const gauge_config_t OIL_PRESS_CONFIG = {
   .show_redline = true,
   .red_line_begin = 2.0f, .red_line_end = 8.0f, // 0.0 to 1.0 bar
   .n_ticks = 6, .ticks_period = 1,
+  .title_content = "OIL_PRESS",
   .unit = "bar",
   .bg_image = &gauge_bgnd,
   .icon_image = &oil_pressure
@@ -24,6 +25,7 @@ const gauge_config_t WATER_TEMP_CONFIG = {
     .show_redline = true,
     .red_line_begin = 1050.0f, .red_line_end = 1296.0f, // 105 to 150ish °C
     .n_ticks = 5, .ticks_period = 1,
+    .title_content = "COOLANT_TEMP",
     .unit = "ºC",
     .bg_image = &gauge_bgnd,
     .icon_image = &water_temp
@@ -36,6 +38,7 @@ const gauge_config_t BATTERY_VOLTAGE_CONFIG = {
     .show_redline = true,
     .red_line_begin = 102.0f, .red_line_end = 122.0f, // 10.2 to 12.2ish °C
     .n_ticks = 6, .ticks_period = 1,
+    .title_content = "BATTERY_VOLT",
     .unit = "V",
     .bg_image = &gauge_bgnd,
     .icon_image = &battery_voltage
@@ -48,6 +51,7 @@ const gauge_config_t OIL_TEMP_CONFIG = {
     .show_redline = true,
     .red_line_begin = 1150.0f, .red_line_end = 1370.0f, // 115 to 140ish °C
     .n_ticks = 5, .ticks_period = 1,
+    .title_content = "OIL_TEMP",
     .unit = "ºC",
     .bg_image = &gauge_bgnd,
     .icon_image = &oil_temp
@@ -146,19 +150,6 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   lv_obj_set_size(gauge_cell, g->width, g->height);
   lv_obj_set_pos(gauge_cell, x_pos, 0);
   lv_obj_set_style_pad_all(gauge_cell, 0, LV_PART_MAIN);
-
-  // Icon Image Asset
-  if (g->config.icon_image) {
-    lv_obj_t * icon_img = lv_image_create(gauge_cell);
-    lv_image_set_src(icon_img, cfg->icon_image);
-    lv_obj_center(icon_img);
-    if(g->theme.icon_color) {
-      lv_obj_set_style_image_recolor(icon_img, lv_color_hex(g->theme.icon_color), LV_PART_MAIN);
-      // Set opacity to COVER (255) to fully overwrite original pixel colors while preserving alpha
-      lv_obj_set_style_image_recolor_opa(icon_img, LV_OPA_COVER, LV_PART_MAIN);
-    }
-  }
-
   if (g->theme.show_analog_dial) {
 
     // Background Image Asset
@@ -166,6 +157,15 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
       lv_obj_t * bg_img = lv_image_create(gauge_cell);
       lv_image_set_src(bg_img, cfg->bg_image);
       lv_obj_center(bg_img);
+    }
+    // Icon Image Asset
+    if (g->config.icon_image) {
+      lv_obj_t * icon_img = lv_image_create(gauge_cell);
+      lv_image_set_src(icon_img, cfg->icon_image);
+      lv_obj_center(icon_img);
+      lv_obj_set_style_image_recolor(icon_img, lv_color_hex(g->theme.icon_color), LV_PART_MAIN);
+      // Set opacity to COVER (255) to fully overwrite original pixel colors while preserving alpha
+      lv_obj_set_style_image_recolor_opa(icon_img, LV_OPA_COVER, LV_PART_MAIN);
     }
 
     // Scale Object
@@ -216,19 +216,31 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
     apply_gauge_theme(cap, &g->theme, g->scale, CAP);
 
   } else {
-    // g->scale = NULL;
-    // g->needle = NULL;
-    // g->start_label[0] = '\0';
-    // g->mid_label[0] = '\0';
-    // // Fast clear using memset
-    // memset(g->custom_labels, 0, sizeof(g->custom_labels));
+    // Title
+    if(g->theme.show_title) {
+      g->title = lv_label_create(gauge_cell);
+      apply_gauge_theme(g->title, &g->theme, (void*)(uintptr_t)g->theme.title_align, TITLE);
+      char title_buf[16] = {0};
+      snprintf(title_buf, sizeof(title_buf), "%s", g->config.title_content);
+      if (g->theme.caps_lock) to_upper(title_buf);
+      lv_label_set_text(g->title, title_buf);
+    }
+    // Icon Image Asset
+    if (g->config.icon_image) {
+      lv_obj_t * icon_img = lv_image_create(gauge_cell);
+      lv_image_set_src(icon_img, cfg->icon_image);
+      lv_obj_center(icon_img);
+      lv_obj_set_style_image_recolor(icon_img, lv_color_hex(g->theme.icon_color), LV_PART_MAIN);
+      // Set opacity to COVER (255) to fully overwrite original pixel colors while preserving alpha
+      lv_obj_set_style_image_recolor_opa(icon_img, LV_OPA_COVER, LV_PART_MAIN);
+      lv_obj_align(icon_img, LV_ALIGN_CENTER, 0, g->theme.icon_y_ofs);
+    }
   }
 
   // Readout Label
   g->label = lv_label_create(gauge_cell);
-  apply_gauge_theme(g->label, &g->theme, (void*)(uintptr_t)LV_ALIGN_BOTTOM_MID, LABEL);
+  apply_gauge_theme(g->label, &g->theme, (void*)(uintptr_t)g->theme.label_align, LABEL);
   lv_label_set_text(g->label, g->config.unit);
-
   gauge_update_value(g, cfg->min_val);
   register_gauge(g);
 
@@ -246,8 +258,11 @@ void gauge_update_value(gauge_t * g, float new_val) {
 
     g->current_needle_angle_rad = angle_deg * (3.14159265f / 180.0f);
 
+    char unit_buf[16] = {0};
+    snprintf(unit_buf, sizeof(unit_buf), "%s", g->config.unit);
+    if (g->theme.caps_lock) to_upper(unit_buf);
     if (g->needle) lv_obj_invalidate(g->needle);
-    if (g->label && g->theme.show_value)  lv_label_set_text_fmt(g->label, "%.1f %s", g->value, g->config.unit);
+    if (g->label && g->theme.show_value)  lv_label_set_text_fmt(g->label, "%.1f %s", g->value, unit_buf);
 }
 
 void gauge_update_value_by_type(param_type_t type, float new_val) {

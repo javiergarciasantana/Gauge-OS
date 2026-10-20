@@ -16,10 +16,13 @@ typedef struct {
   int height;
   int width;
 
+  screen_t * screens[MAX_SAVED_SCREENS]; //Not in order, just to access and change theme
+
 } dashboard_system_t;
 
 void slot_select_confirm_cb(lv_event_t * e);
-void dashboard_add_new_screen(dashboard_system_t * sys, int slots);
+static void dashboard_add_new_screen(dashboard_system_t * sys, int slots);
+void slot_select_theme(lv_event_t * e);
 
 /**
  * Main UI Initialization
