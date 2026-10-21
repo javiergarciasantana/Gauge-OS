@@ -31,8 +31,11 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
   }
 
   lv_obj_delete(btn_unit);
-  gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, &s->theme->gauge_theme, cfg);
-  //gauge_print(g);
+  gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, s->theme->gauge_theme, cfg);
+  if (s->gauge_count < MAX_GAUGES) {
+    s->gauges[s->gauge_count] = g;
+    s->gauge_count++;
+  }
 }
 
 static void slot_select_unit_modal_cb(lv_event_t * e) {
@@ -84,7 +87,7 @@ static void add_btn_modal_cb(lv_event_t * e) {
 }
 
 
-void change_screen_theme(screen_t * scr, const screen_theme_t* theme) {
+void screen_update(screen_t * scr, const screen_theme_t* theme) {
 
   lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(theme->main_bgnd), LV_PART_MAIN);
   lv_obj_t * parent = scr->tile;
@@ -93,7 +96,7 @@ void change_screen_theme(screen_t * scr, const screen_theme_t* theme) {
   scr->theme = theme;
   uint32_t child_count = lv_obj_get_child_count(parent);
 
-  for (uint32_t i = 0; i < child_count; i++) {
+  for (uint32_t i = 0; i < child_count; ++i) {
     lv_obj_t * child = lv_obj_get_child(parent, i);
     // Switch on mapped enum value
     switch (get_widget_type(child)) {
@@ -112,9 +115,12 @@ void change_screen_theme(screen_t * scr, const screen_theme_t* theme) {
       default:
       break;
     }
-    printf("obj type: %d\n", get_widget_type(child));
   }
-
+  for (uint32_t i = 0; i < scr->gauge_count; ++i) {
+    if (scr->gauges[i] != NULL) {
+      gauge_update(scr->gauges[i], scr->theme->gauge_theme);
+    }
+  }
 }
 
 screen_t * screen_create(lv_obj_t * parent,
@@ -132,12 +138,12 @@ screen_t * screen_create(lv_obj_t * parent,
     LV_ASSERT_MALLOC(s);
     memset(s, 0, sizeof(screen_t));
 
-
     s->type = type;
     s->theme = theme;
     s->encoder_group = encoder_group;
     s->width = width;
     s->height = height;
+    s->gauge_count = 0;
     lv_obj_t * tile = NULL;
     lv_obj_t * lbl = NULL;
 
@@ -151,9 +157,7 @@ screen_t * screen_create(lv_obj_t * parent,
       apply_screen_theme(lbl, s->theme, "SETTINGS", LABEL);
 
       lv_obj_t * roller = lv_roller_create(tile);
-      char options[] = "DIGITAL";
-      if (s->theme->caps_lock) to_upper(options);
-      apply_screen_theme(roller, s->theme, options, ROLLER);
+      apply_screen_theme(roller, s->theme, theme_get_roller_options(s->theme->caps_lock), ROLLER);
       lv_obj_align(roller, LV_ALIGN_CENTER, 0, 0);
       lv_obj_add_event_cb(roller, slot_select_theme_cb, LV_EVENT_CLICKED, user_data);
 

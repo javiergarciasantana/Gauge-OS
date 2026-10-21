@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <stdint.h>
+#include <math.h>
 
 // OEM Color Palette
 #define COLOR_VAG_GR      lv_color_hex(0x474b4e)
@@ -34,6 +36,7 @@ typedef enum {
   ROLLER,
   LABEL,
   TITLE,
+  BGND,
   SCALE,
   REDLINE,
   ICON,
@@ -77,7 +80,6 @@ typedef struct {
   int title_x_ofs;
   int title_y_ofs;
   lv_align_t title_align;
-  bool show_title;
 
   const lv_font_t * label_font;
   uint32_t label_font_color;    // Active digit/text color
@@ -91,12 +93,16 @@ typedef struct {
   float needle_base_width;
   float needle_length;
 
+  const lv_image_dsc_t * bg_src;
+  uint32_t bg_color;
+  uint8_t bg_opa;
+
   bool caps_lock;
 } gauge_theme_t;
 
 
 typedef struct {
-  const gauge_theme_t gauge_theme;
+  const gauge_theme_t * gauge_theme;
 
   uint32_t focus_ring_color;
   uint8_t focus_ring_width;
@@ -127,6 +133,7 @@ void to_upper(char* str);
 theme_elem_t get_widget_type(const lv_obj_t * obj);
 void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* content, const theme_elem_t elem);
 void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem);
+void apply_needle_theme(lv_draw_triangle_dsc_t * tri, lv_draw_triangle_dsc_t * shadow, lv_obj_t * obj, float angle, const gauge_theme_t * theme, int width, int height);
 void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme);
 
 

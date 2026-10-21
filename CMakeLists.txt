@@ -77,6 +77,7 @@ set(MAIN_SOURCES
   src/mouse_cursor_icon.c
   src/hal/hal.c
   src/theme.c
+  src/theme_registry.c
   src/gauge.c
   src/screen.c
   src/dashboard.c

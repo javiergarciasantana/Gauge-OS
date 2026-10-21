@@ -1,9 +1,8 @@
 #ifndef GAUGE_H
 #define GAUGE_H
 
-#include <assert.h>
-#include <stdbool.h>
 #include "theme.h"
+#include "theme_registry.h"
 
 
 /*********************
@@ -43,8 +42,7 @@ typedef struct {
     const char * unit;
     const char * title_content;
 
-    const lv_image_dsc_t * bg_image;
-    const lv_image_dsc_t * icon_image;
+    const lv_image_dsc_t * icon_src;
 } gauge_config_t;
 
 // 2. Dynamic Runtime Instance State
@@ -55,9 +53,13 @@ typedef struct {
     lv_obj_t * needle;
     lv_obj_t * label;
     lv_obj_t * title;
+    lv_obj_t * cap;
+    lv_obj_t * bg_img;
+    lv_obj_t * icon_img;
 
-    gauge_theme_t theme;
-    gauge_config_t config; // Copy of this gauge's parameters
+
+    const gauge_theme_t * theme;
+    const gauge_config_t * config; // Copy of this gauge's parameters
 
     float value;
     float current_needle_angle_rad;
@@ -79,10 +81,14 @@ typedef struct {
 gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, const int height, const gauge_theme_t * theme, const gauge_config_t * cfg);
 
 /**
+ * Updates the the gauge theme
+ */
+void gauge_update(gauge_t * g, const gauge_theme_t* theme);
+
+/**
  * Updates needle position and readout text using internal float math
  */
 void gauge_update_value(gauge_t * g, float new_val);
-
 
 /**
  * Calls gauge_update_value to update all gauges that have the same param_type_t

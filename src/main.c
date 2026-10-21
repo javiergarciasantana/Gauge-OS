@@ -70,7 +70,6 @@ static void sim_timer_cb(lv_timer_t * t) {
         }
         gauge_update_value_by_type(type, oil_pr);
         break;
-
       case PARAM_BATTERY_VOLTAGE:
         if (bat_volt > 15.0) {
           bat_volt = 10.0f;
@@ -111,7 +110,7 @@ int main(int argc, char **argv) {
     }
 
     // Initialize the dynamic carousel UI (replaces static gauge_create calls)
-    dashboard_create(g, &ANALOGUE, 480, 128, 3);
+    dashboard_create(g, theme_get_by_id(THEME_ID_VW_POLO_6N2), 480, 128, 3);
 
     // Timers
     lv_timer_create(sim_timer_cb, 300, (void *)(uintptr_t)PARAM_OIL_PRESS);

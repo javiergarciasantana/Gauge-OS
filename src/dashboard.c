@@ -29,16 +29,12 @@ void slot_select_theme_cb(lv_event_t * e) {
   dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
   lv_obj_t * roller = lv_event_get_target(e);
 
-  uint16_t selected_slots = lv_roller_get_selected(roller) + 1;
+  uint16_t selected_slot = lv_roller_get_selected(roller);
+  sys->theme = theme_get_by_id(selected_slot);
 
-  // lv_group_remove_obj(roller);
-  // lv_obj_delete(roller);
-
-  sys->theme = &DIGITAL;
   int total_screens = sys->screen_count + 2;
-
   for (int i = 0; i < total_screens; ++i) {
-    change_screen_theme(sys->screens[i], &DIGITAL);
+    screen_update(sys->screens[i], sys->theme);
   }
 }
 

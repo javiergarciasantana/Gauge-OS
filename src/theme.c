@@ -1,86 +1,4 @@
-
 #include "theme.h"
-
-
-/********************************
- *      GAUGE THEME DEFINITIONS
- ********************************/
-const gauge_theme_t GAUGE_ANALOGUE = {
-  .icon_color = 0xFFFFFF,
-
-  .scale_width = 175, .scale_height = 175, .scale_range = 100,
-  .scale_offset = 220, .scale_x_ofs = 0, .scale_y_ofs = 50,
-  .scale_font = &ui_font_futura_bold, .scale_font_color = 0xFFFFFF,
-
-  .tick_color = 0xFFFFFF, .tick_width = 4, .tick_length = 14,
-  .sec_tick_color = 0x474b4e, .sec_tick_width = 0, .sec_tick_length = 0,
-
-  .redline_color = 0xE60000, .redline_width = 15, .redline_padding = -1,
-
-  .cap_color = 0x474b4e, .cap_border_color = 0x474b4e, .cap_radius = 55,
-
-  .show_title = false,
-
-  .label_font = &ui_font_futura_bold, .label_font_color = 0xFFFFFF,
-  .label_x_ofs = 60, .label_y_ofs = -20, .label_align = LV_ALIGN_BOTTOM_MID,
-  .show_value = false,
-
-  .show_analog_dial = true, .needle_color = 0xE60000,
-  .needle_base_width = 10.0f, .needle_length = 88.0f,
-
-  .caps_lock = false
-};
-
-const gauge_theme_t GAUGE_DIGITAL = {
-  .icon_color = 0x274250, .icon_y_ofs = -60,
-
-  .title_font = &ui_font_vt323, .title_font_color = 0x274250,
-  .title_x_ofs = 0, .title_y_ofs = -15, .title_align = LV_ALIGN_CENTER,
-  .show_title = true,
-
-  .label_font = &ui_font_vt323, .label_font_color = 0x274250,
-  .label_x_ofs = 0, .label_y_ofs = 15, .label_align = LV_ALIGN_CENTER,
-  .show_value = true,
-
-  .show_analog_dial = false,
-
-  .caps_lock = true
-};
-
-/********************************
- *      SCREEN THEME DEFINITIONS
- ********************************/
-const screen_theme_t ANALOGUE = {
-  .obj_shape = 20, .obj_outline = 2,
-  .obj_outline_color = 0xFFFFFF,
-  .focus_ring_color = 0xFFFFFF, .focus_ring_width = 4,
-  .roller_bgnd = 0x43454b, .roller_font = &ui_font_futura_bold,
-  .roller_outline_color = 0xFFFFFF,
-  .roller_selection = 0xE60000,
-  .button_color = 0x43454b, .button_font = &ui_font_futura_bold,
-  .plus_btn_h = 60, .plus_btn_w = 60, .unit_btn_w = 120,
-
-  .main_font = &ui_font_futura_bold, .font_color = 0xFFFFFF,
-  .caps_lock = false,
-  .main_bgnd = 0x474b4e,
-  .gauge_theme = GAUGE_ANALOGUE
-};
-
-const screen_theme_t DIGITAL = {
-  .obj_shape = 0, .obj_outline = 0,
-  .obj_outline_color = 0x8fa37b,
-  .focus_ring_color = 0x274250, .focus_ring_width = 4,
-  .roller_bgnd = 0x8fa37b, .roller_font = &ui_font_vt323,
-  .roller_outline_color = 0x8fa37b,
-  .roller_selection = 0x274250,
-  .button_color = 0x8fa37b, .button_font = &ui_font_vt323,
-  .plus_btn_h = 60, .plus_btn_w = 60, .unit_btn_w = 120,
-
-  .main_font = &ui_font_vt323, .font_color = 0x274250,
-  .caps_lock = true,
-  .main_bgnd = 0x8fa37b,
-  .gauge_theme = GAUGE_DIGITAL
-};
 
 void to_upper(char *str) {
   if (!str) return;
@@ -173,6 +91,7 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
   switch (elem) {
     case SCALE:
       lv_obj_set_size(obj, theme->scale_width, theme->scale_height);
+      if((int)(uintptr_t)user_data != 0) break;
       lv_obj_align(obj, LV_ALIGN_CENTER, theme->scale_x_ofs, theme->scale_y_ofs);
       lv_scale_set_mode(obj, LV_SCALE_MODE_ROUND_INNER);
       lv_scale_set_angle_range(obj, theme->scale_range);
@@ -192,13 +111,11 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
       lv_obj_set_style_line_width(obj, theme->sec_tick_width, LV_PART_ITEMS);
       lv_obj_set_style_length(obj, theme->sec_tick_length, LV_PART_ITEMS);
       break;
-    case NEEDLE:
-      break;
-
 
     case CAP: { //Apparenty C99/C11 requires a {} block for var declaration after case keyword, interesting
       lv_obj_t * scale = (lv_obj_t *)user_data;
       lv_obj_set_size(obj, theme->cap_radius, theme->cap_radius);
+      if(scale == NULL) break;
       lv_obj_set_style_radius(obj, LV_RADIUS_CIRCLE, 0);
       lv_obj_set_style_bg_color(obj, lv_color_hex(theme->cap_color), 0);
       lv_obj_set_style_border_color(obj, lv_color_hex(theme->cap_border_color), 0);
@@ -219,13 +136,76 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
       lv_obj_set_style_text_font(obj, theme->title_font, LV_PART_MAIN);
       break;
     }
+    case BGND: {
+      lv_image_set_src(obj, theme->bg_src);
+      lv_obj_center(obj);
+      if(theme->bg_color) {
+        lv_obj_set_style_image_recolor(obj, lv_color_hex(theme->bg_color), LV_PART_MAIN);
+      }
+      lv_obj_set_style_image_recolor_opa(obj, theme->bg_opa, LV_PART_MAIN);
+      break;
+    }
+    case ICON: {
+      lv_image_dsc_t * img_src = (lv_image_dsc_t *)user_data;
+      lv_image_set_src(obj, img_src);
+      lv_obj_center(obj);
+      lv_obj_set_style_image_recolor(obj, lv_color_hex(theme->icon_color), LV_PART_MAIN);
+      // Set opacity to COVER (255) to fully overwrite original pixel colors while preserving alpha
+      lv_obj_set_style_image_recolor_opa(obj, LV_OPA_COVER, LV_PART_MAIN);
+      lv_obj_align(obj, LV_ALIGN_CENTER, 0, theme->icon_y_ofs);
+      break;
+    }
     default: return;
   }
 }
+
+void apply_needle_theme(lv_draw_triangle_dsc_t * tri, lv_draw_triangle_dsc_t * shadow, lv_obj_t * obj, float angle, const gauge_theme_t * theme, int width, int height) {
+  if (!obj || !tri || !shadow || !theme) return;
+
+  lv_area_t coords;
+  lv_obj_get_coords(obj, &coords);
+
+  float center_x = coords.x1 + (width / 2.0f);
+  float center_y = coords.y1 + (height / 2.0f) + theme->scale_y_ofs;
+  float perp_angle = angle + 1.57079632679f;
+
+  if(theme->show_analog_dial) {
+
+    lv_draw_triangle_dsc_init(shadow);
+    shadow->color = lv_color_hex(0x000000);
+    shadow->opa = LV_OPA_40;
+
+    lv_draw_triangle_dsc_init(tri);
+    tri->color = lv_color_hex(theme->needle_color);
+    tri->opa = LV_OPA_COVER;
+  } else {
+    lv_draw_triangle_dsc_init(shadow);
+    shadow->opa = LV_OPA_0;
+
+    lv_draw_triangle_dsc_init(tri);
+    tri->opa = LV_OPA_0;
+  }
+
+  shadow->p[0].x = (int32_t)roundf(center_x + 2.0f + theme->needle_length * cosf(angle));
+  shadow->p[0].y = (int32_t)roundf(center_y + 2.0f + theme->needle_length * sinf(angle));
+  shadow->p[1].x = (int32_t)roundf(center_x + 2.0f + (theme->needle_base_width / 2.0f) * cosf(perp_angle));
+  shadow->p[1].y = (int32_t)roundf(center_y + 2.0f + (theme->needle_base_width / 2.0f) * sinf(perp_angle));
+  shadow->p[2].x = (int32_t)roundf(center_x + 2.0f - (theme->needle_base_width / 2.0f) * cosf(perp_angle));
+  shadow->p[2].y = (int32_t)roundf(center_y + 2.0f - (theme->needle_base_width / 2.0f) * sinf(perp_angle));
+
+  tri->p[0].x = (int32_t)roundf(center_x + theme->needle_length * cosf(angle));
+  tri->p[0].y = (int32_t)roundf(center_y + theme->needle_length * sinf(angle));
+  tri->p[1].x = (int32_t)roundf(center_x + (theme->needle_base_width / 2.0f) * cosf(perp_angle));
+  tri->p[1].y = (int32_t)roundf(center_y + (theme->needle_base_width / 2.0f) * sinf(perp_angle));
+  tri->p[2].x = (int32_t)roundf(center_x - (theme->needle_base_width / 2.0f) * cosf(perp_angle));
+  tri->p[2].y = (int32_t)roundf(center_y - (theme->needle_base_width / 2.0f) * sinf(perp_angle));
+}
+
 
 void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme) {
   lv_style_set_arc_color(styl, lv_color_hex(theme->redline_color));
   lv_style_set_arc_width(styl, theme->redline_width);
   lv_style_set_pad_radial(styl, theme->redline_padding);
   lv_style_set_arc_opa(styl, LV_OPA_COVER);
+
 }

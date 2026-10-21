@@ -5,7 +5,6 @@
 
 #define MAX_SAVED_SCREENS 5
 
-
 typedef struct {
   const screen_theme_t * theme;
   lv_obj_t * tile_view;

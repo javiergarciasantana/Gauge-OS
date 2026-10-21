@@ -3,6 +3,8 @@
 
 #include "gauge.h"
 
+#define MAX_GAUGES 3
+
 typedef enum {
   EMPTY,
   POPULATED,
@@ -19,6 +21,9 @@ typedef struct {
   int width;
   int height;
 
+  uint8_t gauge_count;
+  gauge_t * gauges[MAX_GAUGES];
+
 } screen_t;
 
 
@@ -26,7 +31,7 @@ extern const screen_theme_t ANALOGUE;
 extern const screen_theme_t DIGITAL;
 
 void screen_print(const screen_t * scr);
-void change_screen_theme(screen_t * scr, const screen_theme_t* theme);
+void screen_update(screen_t * scr, const screen_theme_t* theme);
 screen_t * screen_create(lv_obj_t * parent,
                          screen_type_t type,
                          const screen_theme_t * theme,
