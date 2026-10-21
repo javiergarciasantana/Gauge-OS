@@ -122,21 +122,13 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   // Background Image Asset
   if (g->theme->bg_src) {
     g->bg_img = lv_image_create(gauge_cell);
-    lv_image_set_src(g->bg_img, theme->bg_src);
-    lv_obj_center(g->bg_img);
+    apply_gauge_theme(g->bg_img, g->theme, NULL, BGND);
   }
   // Icon Image Asset
   if (g->config->icon_src) {
     g->icon_img = lv_image_create(gauge_cell);
-    lv_image_set_src(g->icon_img, cfg->icon_src);
-    lv_obj_center(g->icon_img);
-    lv_obj_set_style_image_recolor(g->icon_img, lv_color_hex(g->theme->icon_color), LV_PART_MAIN);
-    // Set opacity to COVER (255) to fully overwrite original pixel colors while preserving alpha
-    lv_obj_set_style_image_recolor_opa(g->icon_img, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_align(g->icon_img, LV_ALIGN_CENTER, 0, g->theme->icon_y_ofs);
-
+    apply_gauge_theme(g->icon_img, g->theme, (void*)g->config->icon_src, ICON);
   }
-
   // Scale Object
   g->scale = lv_scale_create(gauge_cell);
   apply_gauge_theme(g->scale, g->theme, (void*)(uintptr_t)0, SCALE);
@@ -195,7 +187,6 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   // Readout Label
   g->label = lv_label_create(gauge_cell);
   apply_gauge_theme(g->label, g->theme, (void*)(uintptr_t)g->theme->label_align, LABEL);
-  lv_label_set_text(g->label, g->config->unit);
   gauge_update_value(g, cfg->min_val);
   register_gauge(g);
 
@@ -212,7 +203,7 @@ void gauge_update(gauge_t * g, const gauge_theme_t * theme) {
     apply_gauge_theme(g->bg_img, g->theme, NULL, BGND);
   }
   if (g->icon_img) {
-    apply_gauge_theme(g->icon_img, g->theme, (void*)(uintptr_t)g->config->icon_src, ICON);
+    apply_gauge_theme(g->icon_img, g->theme, (void*)g->config->icon_src, ICON);
   }
   if (g->scale) {
     apply_gauge_theme(g->scale, g->theme, (void*)(uintptr_t)0, SCALE);
@@ -247,7 +238,13 @@ void gauge_update_value(gauge_t * g, float new_val) {
     snprintf(unit_buf, sizeof(unit_buf), "%s", g->config->unit);
     if (g->theme->caps_lock) to_upper(unit_buf);
     if (g->needle) lv_obj_invalidate(g->needle);
-    if (g->label && g->theme->show_value)  lv_label_set_text_fmt(g->label, "%.1f %s", g->value, unit_buf);
+    if (g->label)  {
+      if (g->theme->show_value) {
+        lv_label_set_text_fmt(g->label, "%.1f %s", g->value, unit_buf);
+      } else {
+        lv_label_set_text(g->label, unit_buf);
+      }
+    }
 }
 
 void gauge_update_value_by_type(param_type_t type, float new_val) {

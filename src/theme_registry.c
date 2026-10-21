@@ -28,7 +28,7 @@ const gauge_theme_t GAUGE_VW_POLO_6N2 = {
   .show_analog_dial = true, .needle_color = 0xE60000,
   .needle_base_width = 10.0f, .needle_length = 88.0f,
 
-  .bg_src = &gauge_bgnd, .bg_opa = 255,
+  .bg_src = &gauge_bgnd,
 
   .caps_lock = false
 };

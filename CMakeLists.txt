@@ -82,6 +82,7 @@ set(MAIN_SOURCES
   src/screen.c
   src/dashboard.c
   src/assets/gauge_bgnd.c
+  src/assets/digital_bgnd.c
   src/assets/oil_pressure.c
   src/assets/oil_temp.c
   src/assets/water_temp.c

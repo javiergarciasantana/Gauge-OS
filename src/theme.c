@@ -137,12 +137,14 @@ void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_
       break;
     }
     case BGND: {
-      lv_image_set_src(obj, theme->bg_src);
-      lv_obj_center(obj);
-      if(theme->bg_color) {
-        lv_obj_set_style_image_recolor(obj, lv_color_hex(theme->bg_color), LV_PART_MAIN);
+      if (theme->bg_src) {
+        // 1. Always set source and center image
+        lv_image_set_src(obj, theme->bg_src);
+        lv_obj_center(obj);
+      } else {
+          // If theme has no background image, clear source
+        lv_image_set_src(obj, NULL);
       }
-      lv_obj_set_style_image_recolor_opa(obj, theme->bg_opa, LV_PART_MAIN);
       break;
     }
     case ICON: {

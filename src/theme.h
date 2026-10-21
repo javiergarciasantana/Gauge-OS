@@ -26,6 +26,7 @@ LV_FONT_DECLARE(ui_font_vt323);
  *      IMAGE DECLARATIONS
  **********************/
 LV_IMAGE_DECLARE(gauge_bgnd);
+LV_IMAGE_DECLARE(digital_bgnd);
 LV_IMAGE_DECLARE(oil_pressure);
 LV_IMAGE_DECLARE(oil_temp);
 LV_IMAGE_DECLARE(water_temp);
@@ -94,8 +95,6 @@ typedef struct {
   float needle_length;
 
   const lv_image_dsc_t * bg_src;
-  uint32_t bg_color;
-  uint8_t bg_opa;
 
   bool caps_lock;
 } gauge_theme_t;
