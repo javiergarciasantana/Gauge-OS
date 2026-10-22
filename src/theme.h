@@ -94,6 +94,9 @@ typedef struct {
   float needle_base_width;
   float needle_length;
 
+  uint32_t focus_color;
+  uint8_t focus_shape;
+
   const lv_image_dsc_t * bg_src;
 
   bool caps_lock;

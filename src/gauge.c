@@ -118,6 +118,10 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   lv_obj_set_size(gauge_cell, g->width, g->height);
   lv_obj_set_pos(gauge_cell, x_pos, 0);
   lv_obj_set_style_pad_all(gauge_cell, 0, LV_PART_MAIN);
+  lv_obj_add_flag(gauge_cell, LV_OBJ_FLAG_CLICKABLE);
+
+  g->gauge_cell = gauge_cell;
+  apply_gauge_theme(g->gauge_cell, g->theme, NULL, BASE);
 
   // Background Image Asset
   if (g->theme->bg_src) {
@@ -221,7 +225,6 @@ void gauge_update(gauge_t * g, const gauge_theme_t * theme) {
     apply_gauge_theme(g->title, g->theme, (void*)(uintptr_t)g->theme->title_align, TITLE);
   }
 }
-
 
 void gauge_update_value(gauge_t * g, float new_val) {
     g->value = new_val;

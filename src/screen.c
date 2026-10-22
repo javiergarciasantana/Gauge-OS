@@ -32,6 +32,9 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
 
   lv_obj_delete(btn_unit);
   gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, s->theme->gauge_theme, cfg);
+  if (s->encoder_group && g->gauge_cell) {
+    lv_group_add_obj(s->encoder_group, g->gauge_cell);
+  }
   if (s->gauge_count < MAX_GAUGES) {
     s->gauges[s->gauge_count] = g;
     s->gauge_count++;

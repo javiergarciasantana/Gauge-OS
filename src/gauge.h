@@ -56,7 +56,7 @@ typedef struct {
     lv_obj_t * cap;
     lv_obj_t * bg_img;
     lv_obj_t * icon_img;
-
+    lv_obj_t * gauge_cell;
 
     const gauge_theme_t * theme;
     const gauge_config_t * config; // Copy of this gauge's parameters

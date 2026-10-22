@@ -89,6 +89,19 @@ void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* cont
 void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem) {
   if (!obj || !theme) return;
   switch (elem) {
+    case BASE:
+      //Focus Ring Color
+      lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_color), LV_STATE_FOCUS_KEY);
+      lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_color), LV_STATE_EDITED);
+      // Focus Ring Shape
+      lv_obj_set_style_radius(obj, theme->focus_shape, LV_STATE_FOCUS_KEY);
+      lv_obj_set_style_radius(obj, theme->focus_shape, LV_STATE_EDITED);
+      //Focus Ring Width
+      lv_obj_set_style_outline_width(obj, 4, LV_STATE_FOCUS_KEY);
+      lv_obj_set_style_outline_width(obj, 4, LV_STATE_EDITED);
+      lv_obj_set_style_outline_pad(obj, -10, LV_STATE_FOCUS_KEY);
+      lv_obj_set_style_outline_pad(obj, -10, LV_STATE_EDITED);
+      break;
     case SCALE:
       lv_obj_set_size(obj, theme->scale_width, theme->scale_height);
       if((int)(uintptr_t)user_data != 0) break;
