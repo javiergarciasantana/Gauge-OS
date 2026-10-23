@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 
+extern void gauge_delete_cb(lv_event_t * e);
+
 /**********************
  *      GAUGE CONFIG DEFINITIONS
  **********************/
@@ -82,6 +84,7 @@ static void needle_draw_cb(lv_event_t * e) {
   }
 }
 
+
 /**
  * Register gauge to active polling list
  */
@@ -120,8 +123,8 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   lv_obj_set_style_pad_all(gauge_cell, 0, LV_PART_MAIN);
   lv_obj_add_flag(gauge_cell, LV_OBJ_FLAG_CLICKABLE);
 
+  apply_gauge_theme(g->gauge_cell, g->theme, NULL, CELL);
   g->gauge_cell = gauge_cell;
-  apply_gauge_theme(g->gauge_cell, g->theme, NULL, BASE);
 
   // Background Image Asset
   if (g->theme->bg_src) {
@@ -146,13 +149,14 @@ gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, cons
   snprintf(g->mid_label,   sizeof(g->mid_label),   "%d", (int)(((g->config->max_val - g->config->min_val) / (g->config->n_ticks - 1)) * g->config->mid_val_pos + g->config->min_val));
   snprintf(g->end_label,   sizeof(g->end_label),   "%d", (int)g->config->max_val);
 
-  for (int i = 0; i < g->config->n_ticks; i++) {
+  for (int i = 0; i < GAUGE_MAX_TICKS; i++) {
       g->custom_labels[i] = "";
   }
-  g->custom_labels[0] = g->start_label;
-  g->custom_labels[g->config->mid_val_pos] = g->mid_label;
-  g->custom_labels[g->config->n_ticks] = NULL; // Null terminator
-
+  if (g->config->n_ticks > 0) {
+    g->custom_labels[0] = g->start_label;
+    g->custom_labels[g->config->mid_val_pos] = g->mid_label;
+    g->custom_labels[g->config->n_ticks] = NULL; // Null terminator
+  }
   lv_scale_set_text_src(g->scale, g->custom_labels);
 
   // Redline Arc
@@ -203,6 +207,9 @@ void gauge_update(gauge_t * g, const gauge_theme_t * theme) {
   g->theme = theme;
 
   // FIX: Guard optional widgets against NULL
+  if (g->gauge_cell) {
+    apply_gauge_theme(g->gauge_cell, g->theme, NULL, CELL);
+  }
   if (g->bg_img) {
     apply_gauge_theme(g->bg_img, g->theme, NULL, BGND);
   }
@@ -258,8 +265,34 @@ void gauge_update_value_by_type(param_type_t type, float new_val) {
     }
 }
 
+static void unregister_gauge(gauge_t * g) {
+    if (!g) return;
+    for (int i = 0; i < active_gauge_count; i++) {
+        if (active_gauges[i] == g) {
+            // Shift remaining elements left
+            for (int j = i; j < active_gauge_count - 1; j++) {
+                active_gauges[j] = active_gauges[j + 1];
+            }
+            active_gauges[--active_gauge_count] = NULL;
+            break;
+        }
+    }
+}
+
 void gauge_destroy(gauge_t * g) {
-  if (!g) return;
+    if (!g) return;
+
+    // 1. Unregister from active polling list
+    unregister_gauge(g);
+
+    // 2. Delete LVGL UI widget tree recursively
+    if (g->gauge_cell) {
+        lv_obj_delete(g->gauge_cell);
+        g->gauge_cell = NULL;
+    }
+
+    // 3. Free gauge memory handle
+    lv_free(g);
 }
 
 void gauge_print(const gauge_t *g) {

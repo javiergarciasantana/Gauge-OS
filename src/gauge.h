@@ -88,12 +88,17 @@ void gauge_update(gauge_t * g, const gauge_theme_t* theme);
 /**
  * Updates needle position and readout text using internal float math
  */
-void gauge_update_value(gauge_t * g, float new_val);
+static void gauge_update_value(gauge_t * g, float new_val);
 
 /**
  * Calls gauge_update_value to update all gauges that have the same param_type_t
  */
 void gauge_update_value_by_type(param_type_t type, float new_val);
+
+/**
+ * Unregisters gauge, deletes its child tree and frees up memory allocated for the gauge
+ */
+void gauge_destroy(gauge_t * g);
 
 /**
  * Prints all gauge_t attributes and also the gauge_config_t attributes

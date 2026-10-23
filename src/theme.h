@@ -37,13 +37,13 @@ typedef enum {
   ROLLER,
   LABEL,
   TITLE,
+  CELL,
   BGND,
   SCALE,
   REDLINE,
   ICON,
   NEEDLE,
   CAP,
-  BASE,
   UNKOWN
 } theme_elem_t;
 

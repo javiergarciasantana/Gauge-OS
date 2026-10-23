@@ -32,6 +32,7 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
 
   lv_obj_delete(btn_unit);
   gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, s->theme->gauge_theme, cfg);
+  lv_obj_set_user_data(g->gauge_cell, (void *)(uintptr_t)x_pos);
   if (s->encoder_group && g->gauge_cell) {
     lv_group_add_obj(s->encoder_group, g->gauge_cell);
   }
@@ -39,6 +40,7 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
     s->gauges[s->gauge_count] = g;
     s->gauge_count++;
   }
+  lv_obj_add_event_cb(g->gauge_cell, gauge_delete_cb, LV_EVENT_CLICKED, s);
 }
 
 static void slot_select_unit_modal_cb(lv_event_t * e) {
@@ -65,6 +67,50 @@ static void slot_select_unit_modal_cb(lv_event_t * e) {
 
   lv_group_focus_obj(roller);
   lv_group_set_editing(s->encoder_group, true); // Enables immediate scrolling without extra click
+}
+
+void gauge_delete_cb(lv_event_t * e) {
+  lv_obj_t * gauge_cell = lv_event_get_target(e);
+  screen_t * s = (screen_t *)lv_event_get_user_data(e);
+  if (!s || !gauge_cell) return;
+
+  for (int i = 0; i < s->gauge_count; ++i) {
+    if (s->gauges[i] && s->gauges[i]->gauge_cell == gauge_cell) {
+      gauge_t * g = s->gauges[i];
+      int x_pos = (int)(uintptr_t)lv_obj_get_user_data(s->gauges[i]->gauge_cell);
+      int button_x_pos = x_pos + (SLOT_WIDTH / 2) - (s->theme->unit_btn_w / 2);
+      // 1. Destroy Gauge and remove from active_gauges[]
+      gauge_destroy(g);
+
+      // 2. Clear pointer from screen array
+      s->gauges[i] = NULL;
+
+      // Shift gauges array left
+      for (int j = i; j < s->gauge_count - 1; j++) {
+        s->gauges[j] = s->gauges[j + 1];
+      }
+      s->gauges[--s->gauge_count] = NULL;
+
+      // 3. Recreate "Select..." button in empty slot
+      printf("xpos for gauge: %d\n", button_x_pos);
+      lv_obj_t * btn_unit = lv_button_create(s->tile);
+      lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
+      lv_obj_set_pos(btn_unit, button_x_pos, s->theme->plus_btn_h / 2);
+      char btn_content[] = "Select...";
+      if(s->theme->caps_lock) to_upper(btn_content);
+      apply_screen_theme(btn_unit, s->theme, btn_content, BTN);
+
+      lv_obj_set_user_data(btn_unit, (void *)(uintptr_t)(x_pos));
+
+      lv_obj_add_event_cb(btn_unit, slot_select_unit_modal_cb, LV_EVENT_CLICKED, s);
+
+      if (s->encoder_group) {
+        lv_group_add_obj(s->encoder_group, btn_unit);
+        lv_group_focus_obj(btn_unit);
+      }
+      break;
+    }
+  }
 }
 
 /**
@@ -199,6 +245,9 @@ screen_t * screen_create(lv_obj_t * parent,
         lv_obj_t * btn_unit = lv_button_create(tile);
         lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
         button_x_pos = ((MAX_WIDTH / selected_slots) * i + (MAX_WIDTH / selected_slots / 2));
+        printf("Button x pos %d\n", button_x_pos - s->theme->unit_btn_w / 2);
+        printf("Gauge x pos %d\n", button_x_pos - (SLOT_WIDTH / 2));
+
         lv_obj_set_pos(btn_unit, button_x_pos - s->theme->unit_btn_w / 2, s->theme->plus_btn_h / 2);
         char btn_content[] = "Select...";
         if(s->theme->caps_lock) to_upper(btn_content);
@@ -212,6 +261,7 @@ screen_t * screen_create(lv_obj_t * parent,
       lv_group_add_obj(encoder_group, tile);
     }
     s->tile = tile;
+    s->selected_slots = selected_slots;
     return s;
   }
 

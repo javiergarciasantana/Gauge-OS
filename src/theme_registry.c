@@ -59,7 +59,7 @@ const gauge_theme_t GAUGE_VW_DIGITAL = {
   .show_analog_dial = false, .needle_color = 0x8fa37b,
   .needle_base_width = 0.0f, .needle_length = 0.0f,
 
-  .focus_color = 0x274250, .focus_shape = 0,
+  .focus_color = 0x517163, .focus_shape = 0,
 
   .bg_src = NULL,
 

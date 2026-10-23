@@ -18,6 +18,8 @@ typedef struct {
   lv_group_t * encoder_group;
   lv_obj_t * tile; //this contains tileview as parent
   uint8_t max_gauges;
+  uint8_t selected_slots;
+
   int width;
   int height;
 
@@ -30,6 +32,7 @@ typedef struct {
 extern const screen_theme_t ANALOGUE;
 extern const screen_theme_t DIGITAL;
 
+void gauge_delete_cb(lv_event_t * e);
 void screen_print(const screen_t * scr);
 void screen_update(screen_t * scr, const screen_theme_t* theme);
 screen_t * screen_create(lv_obj_t * parent,

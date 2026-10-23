@@ -18,7 +18,7 @@ theme_elem_t get_widget_type(const lv_obj_t * obj) {
     if (lv_obj_has_class(obj, &lv_label_class))  return LABEL;
     if (lv_obj_has_class(obj, &lv_scale_class))  return SCALE;
     if (lv_obj_has_class(obj, &lv_image_class))  return ICON;
-    if (lv_obj_get_class(obj) == &lv_obj_class)  return BASE;
+    if (lv_obj_get_class(obj) == &lv_obj_class)  return CELL;
 
     return UNKOWN;
 }
@@ -89,7 +89,7 @@ void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* cont
 void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem) {
   if (!obj || !theme) return;
   switch (elem) {
-    case BASE:
+    case CELL:
       //Focus Ring Color
       lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_color), LV_STATE_FOCUS_KEY);
       lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_color), LV_STATE_EDITED);

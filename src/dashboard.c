@@ -63,20 +63,20 @@ static void reposition_screens(dashboard_system_t * sys) {
 
   for (uint32_t i = 0; i < total_tiles; i++) {
     lv_obj_t * tile = lv_obj_get_child(sys->tile_view, i);
-    // For now to identify, get the tile user_data
     screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
     if (type  == SETTINGS) {
       lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
-    } else if (type == EMPTY) {
-      lv_obj_set_pos(tile, sys->screen_count * sys->width, 0);
     }
+    // } else if (type == EMPTY) {
+    //   lv_obj_set_pos(tile, 0 * sys->width, 0);
+    // }
   }
 }
 
 void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
-  screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
+  screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col + 1, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
   sys->screens[sys->screen_count + 2] = scr;
   // 2. Dashboard attaches its OWN navigation callback to the tile object
   lv_obj_add_event_cb(scr->tile, tile_key_nav_cb, LV_EVENT_KEY, sys);
