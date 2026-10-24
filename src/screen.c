@@ -1,9 +1,19 @@
 #include "screen.h"
 #include "string.h"
 
+/**********************
+ * EXTERNAL FUNCTIONS
+ **********************/
 extern void slot_select_confirm_cb(lv_event_t * e);
 extern void slot_select_theme_cb(lv_event_t * e);
 
+/**********************
+ * STATIC FUNCTIONS
+ **********************/
+
+ /**
+ * Event: Clicked on gauge config roller, so gauge can be created
+ */
 static void slot_select_confirm_gauge_cb(lv_event_t * e) {
 
   screen_t * s = (screen_t *)lv_event_get_user_data(e);
@@ -43,7 +53,10 @@ static void slot_select_confirm_gauge_cb(lv_event_t * e) {
   lv_obj_add_event_cb(g->gauge_cell, gauge_delete_cb, LV_EVENT_CLICKED, s);
 }
 
-static void slot_select_unit_modal_cb(lv_event_t * e) {
+/**
+ * Event: Clicked "Select..." to open gauge config selection modal
+ */
+static void slot_select_config_modal_cb(lv_event_t * e) {
 
   lv_obj_t * btn_unit = lv_event_get_target(e);
   screen_t * s = (screen_t *)lv_event_get_user_data(e);
@@ -69,7 +82,10 @@ static void slot_select_unit_modal_cb(lv_event_t * e) {
   lv_group_set_editing(s->encoder_group, true); // Enables immediate scrolling without extra click
 }
 
-void gauge_delete_cb(lv_event_t * e) {
+/**
+ * Deletes a gauge when clicking on its cell
+ */
+static void gauge_delete_cb(lv_event_t * e){
   lv_obj_t * gauge_cell = lv_event_get_target(e);
   screen_t * s = (screen_t *)lv_event_get_user_data(e);
   if (!s || !gauge_cell) return;
@@ -92,7 +108,6 @@ void gauge_delete_cb(lv_event_t * e) {
       s->gauges[--s->gauge_count] = NULL;
 
       // 3. Recreate "Select..." button in empty slot
-      printf("xpos for gauge: %d\n", button_x_pos);
       lv_obj_t * btn_unit = lv_button_create(s->tile);
       lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
       lv_obj_set_pos(btn_unit, button_x_pos, s->theme->plus_btn_h / 2);
@@ -102,7 +117,7 @@ void gauge_delete_cb(lv_event_t * e) {
 
       lv_obj_set_user_data(btn_unit, (void *)(uintptr_t)(x_pos));
 
-      lv_obj_add_event_cb(btn_unit, slot_select_unit_modal_cb, LV_EVENT_CLICKED, s);
+      lv_obj_add_event_cb(btn_unit, slot_select_config_modal_cb, LV_EVENT_CLICKED, s);
 
       if (s->encoder_group) {
         lv_group_add_obj(s->encoder_group, btn_unit);
@@ -114,7 +129,7 @@ void gauge_delete_cb(lv_event_t * e) {
 }
 
 /**
- * Event: Click "+" to open gauge selection modal
+ * Event: Clicked "+" to open gauge selection modal
  */
 static void add_btn_modal_cb(lv_event_t * e) {
   // 1. Retrieve the opaque void * pointer without casting it
@@ -136,41 +151,9 @@ static void add_btn_modal_cb(lv_event_t * e) {
 }
 
 
-void screen_update(screen_t * scr, const screen_theme_t* theme) {
-
-  lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(theme->main_bgnd), LV_PART_MAIN);
-  lv_obj_t * parent = scr->tile;
-  if (!parent) return;
-
-  scr->theme = theme;
-  uint32_t child_count = lv_obj_get_child_count(parent);
-
-  for (uint32_t i = 0; i < child_count; ++i) {
-    lv_obj_t * child = lv_obj_get_child(parent, i);
-    // Switch on mapped enum value
-    switch (get_widget_type(child)) {
-      case BTN:
-      apply_screen_theme(child, theme, NULL, BTN);
-      break;
-      case ROLLER:
-      apply_screen_theme(child, theme, NULL, ROLLER);
-      break;
-      case LABEL:
-      apply_screen_theme(child, theme, NULL, LABEL);
-      break;
-      case ICON:
-      apply_screen_theme(child, theme, NULL, BTN);
-      break;
-      default:
-      break;
-    }
-  }
-  for (uint32_t i = 0; i < scr->gauge_count; ++i) {
-    if (scr->gauges[i] != NULL) {
-      gauge_update(scr->gauges[i], scr->theme->gauge_theme);
-    }
-  }
-}
+/**********************
+ * NON STATIC FUNCTIONS
+ **********************/
 
 screen_t * screen_create(lv_obj_t * parent,
   screen_type_t type,
@@ -245,8 +228,6 @@ screen_t * screen_create(lv_obj_t * parent,
         lv_obj_t * btn_unit = lv_button_create(tile);
         lv_obj_set_size(btn_unit, s->theme->unit_btn_w, s->theme->plus_btn_h);
         button_x_pos = ((MAX_WIDTH / selected_slots) * i + (MAX_WIDTH / selected_slots / 2));
-        printf("Button x pos %d\n", button_x_pos - s->theme->unit_btn_w / 2);
-        printf("Gauge x pos %d\n", button_x_pos - (SLOT_WIDTH / 2));
 
         lv_obj_set_pos(btn_unit, button_x_pos - s->theme->unit_btn_w / 2, s->theme->plus_btn_h / 2);
         char btn_content[] = "Select...";
@@ -255,7 +236,7 @@ screen_t * screen_create(lv_obj_t * parent,
 
         lv_obj_set_user_data(btn_unit, (void *)(uintptr_t)(button_x_pos - (SLOT_WIDTH / 2)));
 
-        lv_obj_add_event_cb(btn_unit, slot_select_unit_modal_cb, LV_EVENT_CLICKED, s);
+        lv_obj_add_event_cb(btn_unit, slot_select_config_modal_cb, LV_EVENT_CLICKED, s);
       }
 
       lv_group_add_obj(encoder_group, tile);
@@ -263,7 +244,43 @@ screen_t * screen_create(lv_obj_t * parent,
     s->tile = tile;
     s->selected_slots = selected_slots;
     return s;
+}
+
+void screen_update(screen_t * scr, const screen_theme_t* theme) {
+
+  lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(theme->main_bgnd), LV_PART_MAIN);
+  lv_obj_t * parent = scr->tile;
+  if (!parent) return;
+
+  scr->theme = theme;
+  uint32_t child_count = lv_obj_get_child_count(parent);
+
+  for (uint32_t i = 0; i < child_count; ++i) {
+    lv_obj_t * child = lv_obj_get_child(parent, i);
+    // Switch on mapped enum value
+    switch (get_widget_type(child)) {
+      case BTN:
+      apply_screen_theme(child, theme, NULL, BTN);
+      break;
+      case ROLLER:
+      apply_screen_theme(child, theme, NULL, ROLLER);
+      break;
+      case LABEL:
+      apply_screen_theme(child, theme, NULL, LABEL);
+      break;
+      case ICON:
+      apply_screen_theme(child, theme, NULL, BTN);
+      break;
+      default:
+      break;
+    }
   }
+  for (uint32_t i = 0; i < scr->gauge_count; ++i) {
+    if (scr->gauges[i] != NULL) {
+      gauge_update(scr->gauges[i], scr->theme->gauge_theme);
+    }
+  }
+}
 
 void print_screen(const screen_t *s) {
     if (!s) {

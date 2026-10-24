@@ -3,8 +3,14 @@
 
 #include "gauge.h"
 
+/*********************
+ * DEFINES
+ *********************/
 #define MAX_GAUGES 3
 
+/**********************
+ * TYPEDEFS
+ **********************/
 typedef enum {
   EMPTY,
   POPULATED,
@@ -28,22 +34,28 @@ typedef struct {
 
 } screen_t;
 
-
-extern const screen_theme_t ANALOGUE;
-extern const screen_theme_t DIGITAL;
-
-void gauge_delete_cb(lv_event_t * e);
-void screen_print(const screen_t * scr);
-void screen_update(screen_t * scr, const screen_theme_t* theme);
+/**********************
+ * GLOBAL PROTOTYPES
+ **********************/
+/**
+ * Creates a screen inside a tileview in the desired column
+ */
 screen_t * screen_create(lv_obj_t * parent,
-                         screen_type_t type,
-                         const screen_theme_t * theme,
-                         lv_group_t * encoder_group,
-                         int selected_slots,
-                         int col_index,
-                         int width,
-                         int height,
-                         uint8_t max_gauges,
-                         void* user_data);
-
+  screen_type_t type,
+  const screen_theme_t * theme,
+  lv_group_t * encoder_group,
+  int selected_slots,
+  int col_index,
+  int width,
+  int height,
+  uint8_t max_gauges,
+  void* user_data);
+/**
+ * Updates a screen theme and its objects theme
+ */
+void screen_update(screen_t * scr, const screen_theme_t* theme);
+/**
+ * Prints all screen_t attributes
+ */
+void screen_print(const screen_t * scr);
 #endif

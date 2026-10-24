@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef THEME_H
+#define THEME_H
 
 #include "lvgl/lvgl.h"
 #include <ctype.h>
@@ -10,20 +10,22 @@
 #include <stdint.h>
 #include <math.h>
 
-// OEM Color Palette
+/**********************
+ * DEFINES
+ **********************/
 #define COLOR_VAG_GR      lv_color_hex(0x474b4e)
 #define COLOR_VAG_DARK_GR lv_color_hex(0x43454b)
 #define COLOR_VAG_WHITE   lv_color_hex(0xFFFFFF)
 #define COLOR_VAG_RED     lv_color_hex(0xE60000)
 
 /**********************
- *      FONT DECLARATIONS
+ * FONT DECLARATIONS
  **********************/
 LV_FONT_DECLARE(ui_font_futura_bold);
 LV_FONT_DECLARE(ui_font_vt323);
 
 /**********************
- *      IMAGE DECLARATIONS
+ * IMAGE DECLARATIONS
  **********************/
 LV_IMAGE_DECLARE(gauge_bgnd);
 LV_IMAGE_DECLARE(digital_bgnd);
@@ -32,6 +34,9 @@ LV_IMAGE_DECLARE(oil_temp);
 LV_IMAGE_DECLARE(water_temp);
 LV_IMAGE_DECLARE(battery_voltage);
 
+/**********************
+ * TYPEDEFS
+ **********************/
 typedef enum {
   BTN,
   ROLLER,
@@ -131,12 +136,34 @@ typedef struct {
 
 } screen_theme_t;
 
-void to_upper(char* str);
-theme_elem_t get_widget_type(const lv_obj_t * obj);
-void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* content, const theme_elem_t elem);
-void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem);
-void apply_needle_theme(lv_draw_triangle_dsc_t * tri, lv_draw_triangle_dsc_t * shadow, lv_obj_t * obj, float angle, const gauge_theme_t * theme, int width, int height);
-void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme);
 
+/**********************
+ * GLOBAL PROTOTYPES
+ **********************/
+
+/**
+ * Converts char * content to upper case
+ */
+void to_upper(char* str);
+/**
+ * Returns an lv_obj_t theme_elem_t based on its lv_obj_class_t
+ */
+theme_elem_t get_widget_type(const lv_obj_t * obj);
+/**
+ * Applies the theme to screen elements based on their theme_elem_t
+ */
+void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* content, const theme_elem_t elem);
+/**
+ * Applies the theme to gauge elements based on their theme_elem_t
+ */
+void apply_gauge_theme(lv_obj_t * obj, const gauge_theme_t * theme, void * user_data, const theme_elem_t elem);
+/**
+ * Applies the theme to the needle before drawing it
+ */
+void apply_needle_theme(lv_draw_triangle_dsc_t * tri, lv_draw_triangle_dsc_t * shadow, lv_obj_t * obj, float angle, const gauge_theme_t * theme, int width, int height);
+/**
+ * Applies the theme to the gauges redline
+ */
+void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme);
 
 #endif

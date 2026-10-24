@@ -1,5 +1,9 @@
 #include "dashboard.h"
 
+/**********************
+ * STATIC FUNCTIONS
+ **********************/
+
 /**
  * Key Event Callback: Allows switching TileView screens using Encoder / Arrow Keys
  */
@@ -25,7 +29,7 @@ static void tile_key_nav_cb(lv_event_t * e) {
 /**
  * Modal change theme(non static so that it can be linked)
  */
-void slot_select_theme_cb(lv_event_t * e) {
+static void slot_select_theme_cb(lv_event_t * e) {
   dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
   lv_obj_t * roller = lv_event_get_target(e);
 
@@ -41,7 +45,7 @@ void slot_select_theme_cb(lv_event_t * e) {
 /**
  * Modal confirm event callback(non static so that it can be linked)
  */
-void slot_select_confirm_cb(lv_event_t * e) {
+static void slot_select_confirm_cb(lv_event_t * e) {
     dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
     lv_obj_t * roller = lv_event_get_target(e);
 
@@ -66,14 +70,13 @@ static void reposition_screens(dashboard_system_t * sys) {
     screen_type_t type = (screen_type_t)(uintptr_t)lv_obj_get_user_data(tile);
     if (type  == SETTINGS) {
       lv_obj_set_pos(tile, (sys->screen_count + 1) * sys->width, 0);
+    } else if (type == EMPTY) {
+      lv_obj_set_pos(tile, 0 * sys->width, 0);
     }
-    // } else if (type == EMPTY) {
-    //   lv_obj_set_pos(tile, 0 * sys->width, 0);
-    // }
   }
 }
 
-void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
+static void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
   screen_t * scr = screen_create(sys->tile_view, POPULATED, sys->theme, sys->encoder_group, slots, new_col + 1, sys->width, sys->height, sys->max_n_gauges_per_screen, sys);
@@ -89,6 +92,10 @@ void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
   lv_group_focus_obj(scr->tile);
 }
+
+/**********************
+ * NON STATIC FUNCTIONS
+ **********************/
 
 /**
  * Main Dynamic Carousel UI Initialization

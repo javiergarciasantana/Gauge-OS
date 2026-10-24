@@ -3,8 +3,14 @@
 
 #include "screen.h"
 
+/**********************
+ * DEFINES
+ **********************/
 #define MAX_SAVED_SCREENS 5
 
+/**********************
+ * TYPEDEFS
+ **********************/
 typedef struct {
   const screen_theme_t * theme;
   lv_obj_t * tile_view;
@@ -19,9 +25,9 @@ typedef struct {
 
 } dashboard_system_t;
 
-void slot_select_confirm_cb(lv_event_t * e);
-static void dashboard_add_new_screen(dashboard_system_t * sys, int slots);
-void slot_select_theme(lv_event_t * e);
+/**********************
+ * GLOBAL PROTOTYPES
+ **********************/
 
 /**
  * Main UI Initialization

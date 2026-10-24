@@ -4,9 +4,8 @@
 #include "theme.h"
 #include "theme_registry.h"
 
-
 /*********************
- *      DEFINES
+ * DEFINES
  *********************/
 #define MAX_WIDTH        480
 #define SLOT_WIDTH       160
@@ -15,9 +14,8 @@
 #define MAX_ACTIVE_GAUGES 9
 
 /**********************
- *      TYPEDEFS
+ * TYPEDEFS
  **********************/
-
 typedef enum {
     PARAM_OIL_PRESS,
     PARAM_OIL_TEMP,
@@ -25,7 +23,7 @@ typedef enum {
     PARAM_BATTERY_VOLTAGE
 } param_type_t;
 
-// 1. Static Configuration Descriptor (Styling & Specs)
+// Static Configuration Descriptor (Styling & Specs)
 typedef struct {
     param_type_t type;
     float min_val;
@@ -45,7 +43,7 @@ typedef struct {
     const lv_image_dsc_t * icon_src;
 } gauge_config_t;
 
-// 2. Dynamic Runtime Instance State
+// Dynamic Runtime Instance State
 typedef struct {
     int width;
     int height;
@@ -72,6 +70,14 @@ typedef struct {
 } gauge_t;
 
 /**********************
+ * CONFIGURATIONS
+ **********************/
+const gauge_config_t OIL_PRESS_CONFIG;
+const gauge_config_t WATER_TEMP_CONFIG;
+const gauge_config_t BATTERY_VOLTAGE_CONFIG;
+const gauge_config_t OIL_TEMP_CONFIG;
+
+/**********************
  * GLOBAL PROTOTYPES
  **********************/
 
@@ -81,7 +87,7 @@ typedef struct {
 gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, const int height, const gauge_theme_t * theme, const gauge_config_t * cfg);
 
 /**
- * Updates the the gauge theme
+ * Updates the the gauge theme(calls apply_gauge_theme based on theme_elem_t)
  */
 void gauge_update(gauge_t * g, const gauge_theme_t* theme);
 
@@ -103,18 +109,7 @@ void gauge_destroy(gauge_t * g);
 /**
  * Prints all gauge_t attributes and also the gauge_config_t attributes
  */
-
 void gauge_print(const gauge_t *g);
-
-// Configurations
-extern const gauge_theme_t GAUGE_ANALOGUE;
-extern const gauge_theme_t GAUGE_DIGITAL;
-
-
-extern const gauge_config_t OIL_PRESS_CONFIG;
-extern const gauge_config_t WATER_TEMP_CONFIG;
-extern const gauge_config_t BATTERY_VOLTAGE_CONFIG;
-extern const gauge_config_t OIL_TEMP_CONFIG;
 
 
 #endif /* GAUGE_H */

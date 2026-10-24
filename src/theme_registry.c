@@ -1,6 +1,5 @@
 #include "theme_registry.h"
 
-
 /********************************
  *      GAUGE THEME DEFINITIONS
  ********************************/
@@ -101,7 +100,9 @@ const screen_theme_t VW_DIGITAL = {
   .gauge_theme = &GAUGE_VW_DIGITAL
 };
 
-// Theme Lookup Table
+/**
+ * Theme lookup table
+ */
 static const screen_theme_t * THEME_MAP[THEME_ID_COUNT] = {
     [THEME_ID_VW_POLO_6N2] = &VW_POLO_6N2,
     [THEME_ID_VW_DIGITAL]  = &VW_DIGITAL,

@@ -216,7 +216,6 @@ void apply_needle_theme(lv_draw_triangle_dsc_t * tri, lv_draw_triangle_dsc_t * s
   tri->p[2].y = (int32_t)roundf(center_y - (theme->needle_base_width / 2.0f) * sinf(perp_angle));
 }
 
-
 void apply_redline_theme(lv_style_t * styl, const gauge_theme_t * theme) {
   lv_style_set_arc_color(styl, lv_color_hex(theme->redline_color));
   lv_style_set_arc_width(styl, theme->redline_width);

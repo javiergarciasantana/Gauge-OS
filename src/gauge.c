@@ -2,10 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 
-extern void gauge_delete_cb(lv_event_t * e);
-
 /**********************
- *      GAUGE CONFIG DEFINITIONS
+ * GAUGE CONFIG DEFINITIONS
  **********************/
 const gauge_config_t OIL_PRESS_CONFIG = {
   .type = PARAM_OIL_PRESS,
@@ -56,7 +54,7 @@ const gauge_config_t OIL_TEMP_CONFIG = {
 };
 
 /**********************
- *      STATIC FUNCTIONS
+ * STATIC FUNCTIONS
  **********************/
 
 // Static instances storage
@@ -84,9 +82,8 @@ static void needle_draw_cb(lv_event_t * e) {
   }
 }
 
-
 /**
- * Register gauge to active polling list
+ * Registers gauge to active polling list
  */
 static void register_gauge(gauge_t* g) {
 
@@ -97,8 +94,25 @@ static void register_gauge(gauge_t* g) {
   }
 }
 
+/**
+ * Unregisters gauge to active polling list
+ */
+static void unregister_gauge(gauge_t * g) {
+  if (!g) return;
+  for (int i = 0; i < active_gauge_count; i++) {
+    if (active_gauges[i] == g) {
+      // Shift remaining elements left
+      for (int j = i; j < active_gauge_count - 1; j++) {
+        active_gauges[j] = active_gauges[j + 1];
+      }
+      active_gauges[--active_gauge_count] = NULL;
+      break;
+    }
+  }
+}
+
 /**********************
- *      NON STATIC FUNCTIONS
+ * NON STATIC FUNCTIONS
  **********************/
 gauge_t * gauge_create(lv_obj_t * parent, const int x_pos, const int width, const int height, const gauge_theme_t * theme, const gauge_config_t * cfg) {
   assert(cfg->mid_val_pos < GAUGE_MAX_TICKS && "position of mid_val out of bounds");
@@ -262,20 +276,6 @@ void gauge_update_value_by_type(param_type_t type, float new_val) {
       if (active_gauges[i]->config->type == type) {
         gauge_update_value(active_gauges[i], new_val);
       }
-    }
-}
-
-static void unregister_gauge(gauge_t * g) {
-    if (!g) return;
-    for (int i = 0; i < active_gauge_count; i++) {
-        if (active_gauges[i] == g) {
-            // Shift remaining elements left
-            for (int j = i; j < active_gauge_count - 1; j++) {
-                active_gauges[j] = active_gauges[j + 1];
-            }
-            active_gauges[--active_gauge_count] = NULL;
-            break;
-        }
     }
 }
 
