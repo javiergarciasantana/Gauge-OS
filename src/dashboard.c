@@ -8,22 +8,22 @@
  * Key Event Callback: Allows switching TileView screens using Encoder / Arrow Keys
  */
 static void tile_key_nav_cb(lv_event_t * e) {
-    dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
-    if (!sys) return;
-    uint32_t key = lv_event_get_key(e);
-    int total_tiles = sys->screen_count + 2; // Gauges + Add + Settings
+  dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
+  if (!sys) return;
+  uint32_t key = lv_event_get_key(e);
+  int total_tiles = sys->screen_count + 2; // Gauges + Add + Settings
 
-    if (key == LV_KEY_RIGHT) {
-        if (sys->current_screen_col < total_tiles - 1) {
-            sys->current_screen_col++;
-            lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
-        }
-    } else if (key == LV_KEY_LEFT) {
-        if (sys->current_screen_col > 0) {
-            sys->current_screen_col--;
-            lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
-        }
+  if (key == LV_KEY_RIGHT) {
+    if (sys->current_screen_col < total_tiles - 1) {
+      sys->current_screen_col++;
+      lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
     }
+  } else if (key == LV_KEY_LEFT) {
+    if (sys->current_screen_col > 0) {
+      sys->current_screen_col--;
+      lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
+    }
+  }
 }
 
 /**
@@ -43,25 +43,8 @@ static void slot_select_theme_cb(lv_event_t * e) {
 }
 
 /**
- * Modal confirm event callback(non static so that it can be linked)
+ * Repositions Add (+) and Settings tiles to stay on the far right
  */
-static void slot_select_confirm_cb(lv_event_t * e) {
-    dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
-    lv_obj_t * roller = lv_event_get_target(e);
-
-    uint16_t selected_slots = lv_roller_get_selected(roller) + 1;
-
-    lv_group_remove_obj(roller);
-    lv_obj_delete(roller);
-
-    if (selected_slots > sys->max_n_gauges_per_screen) return;
-    // Dashboard creates the new screen directly
-    dashboard_add_new_screen(sys, selected_slots);
-}
-
-/*
-  Repositions Add (+) and Settings tiles to stay on the far right
-*/
 static void reposition_screens(dashboard_system_t * sys) {
   uint32_t total_tiles = lv_obj_get_child_count(sys->tile_view);
 
@@ -76,6 +59,9 @@ static void reposition_screens(dashboard_system_t * sys) {
   }
 }
 
+/**
+ * Adds new screen(called by event for on the spot screen creation)
+ */
 static void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   int new_col = sys->screen_count;
   // 1. Screen module creates the tile and its slot buttons
@@ -91,6 +77,23 @@ static void dashboard_add_new_screen(dashboard_system_t * sys, int slots) {
   sys->current_screen_col = new_col;
   lv_tileview_set_tile_by_index(sys->tile_view, sys->current_screen_col, 0, LV_ANIM_ON);
   lv_group_focus_obj(scr->tile);
+}
+
+/**
+ * Modal confirm event callback(non static so that it can be linked)
+ */
+static void slot_select_confirm_cb(lv_event_t * e) {
+    dashboard_system_t * sys = (dashboard_system_t *)lv_event_get_user_data(e);
+    lv_obj_t * roller = lv_event_get_target(e);
+
+    uint16_t selected_slots = lv_roller_get_selected(roller) + 1;
+
+    lv_group_remove_obj(roller);
+    lv_obj_delete(roller);
+
+    if (selected_slots > sys->max_n_gauges_per_screen) return;
+    // Dashboard creates the new screen directly
+    dashboard_add_new_screen(sys, selected_slots);
 }
 
 /**********************
