@@ -29,21 +29,21 @@ void apply_screen_theme(lv_obj_t * obj, const screen_theme_t * theme, char* cont
     case ROLLER:
       if (content != NULL) {
         lv_roller_set_options(obj, content, LV_ROLLER_MODE_INFINITE);
+        lv_roller_set_visible_row_count(obj, 2);
       }
-      lv_roller_set_visible_row_count(obj, 2);
-      //Circle or Rectangle
+      // Circle or Rectangle
       lv_obj_set_style_radius(obj, theme->obj_shape, 0);
       lv_obj_set_style_border_width(obj, theme->obj_outline, LV_PART_MAIN);
       lv_obj_set_style_outline_width(obj, theme->obj_outline, LV_PART_MAIN);
       lv_obj_set_style_border_color(obj, lv_color_hex(theme->roller_outline_color), LV_PART_MAIN);
       lv_obj_set_style_outline_color(obj, lv_color_hex(theme->roller_outline_color), LV_PART_MAIN);
-      //Focus Ring Color
+      // Focus Ring Color
       lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_ring_color), LV_STATE_FOCUS_KEY);
       lv_obj_set_style_outline_color(obj, lv_color_hex(theme->focus_ring_color), LV_STATE_EDITED);
-      //Focus Ring Width
+      // Focus Ring Width
       lv_obj_set_style_outline_width(obj, theme->focus_ring_width, LV_STATE_FOCUS_KEY);
       lv_obj_set_style_outline_width(obj, theme->focus_ring_width, LV_STATE_EDITED);
-
+      // Roller intrinsic theme
       lv_obj_set_style_bg_color(obj, lv_color_hex(theme->roller_bgnd), LV_PART_MAIN);
       lv_obj_set_style_bg_color(obj, lv_color_hex(theme->roller_selection), LV_PART_SELECTED);
       lv_obj_set_style_text_font(obj, theme->roller_font, LV_PART_MAIN);
