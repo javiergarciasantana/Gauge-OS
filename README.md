@@ -14,6 +14,9 @@ The main goal is for this software to run lightly on an ESP32-S3 and for this to
 
 ## Preview
 
-Current design (These gauges are set to match the VW Polo 6N2 cluster)
+Current design (These gauges are set to match the VW Polo 6N2 cluster).
+More designs are being included, there is now the option to change the theme on fly. I included a digital one imitation the OEM VW gamma radio.
 
-![alt text](image.png)
+![cluster-theme](./imgs/polo_gauge.png)
+
+![radio-theme](./imgs/polo_gauge_digital.png)
