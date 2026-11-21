@@ -33,5 +33,12 @@ typedef struct {
  * Main UI Initialization
  */
 dashboard_system_t * dashboard_create(lv_group_t * gr, const screen_theme_t * theme, int width, int height, uint8_t max_guges);
-
+/**
+ * Modal change theme(non static so that it can be linked)
+ */
+void slot_select_theme(lv_event_t * e);
+/**
+ * Modal confirm event callback(non static so that it can be linked)
+ */
+void slot_select_confirm_cb(lv_event_t * e);
 #endif

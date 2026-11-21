@@ -10,47 +10,48 @@ extern void slot_select_theme_cb(lv_event_t * e);
 /**********************
  * STATIC FUNCTIONS
  **********************/
+static void gauge_delete_cb(lv_event_t * e);
 
- /**
- * Event: Clicked on gauge config roller, so gauge can be created
- */
+/**
+* Event: Clicked on gauge config roller, so gauge can be created
+*/
 static void slot_select_confirm_gauge_cb(lv_event_t * e) {
 
-  screen_t * s = (screen_t *)lv_event_get_user_data(e);
-  lv_obj_t * roller = (lv_obj_t *)lv_event_get_target(e);
-  lv_obj_t * btn_unit = (lv_obj_t *)(uintptr_t)lv_obj_get_user_data(roller);
+ screen_t * s = (screen_t *)lv_event_get_user_data(e);
+ lv_obj_t * roller = (lv_obj_t *)lv_event_get_target(e);
+ lv_obj_t * btn_unit = (lv_obj_t *)(uintptr_t)lv_obj_get_user_data(roller);
 
-  // Read selected count (Index 0=1 gauge, 1=2 gauges, 2=3 gauges)
-  uint16_t selected_cfg = lv_roller_get_selected(roller);
-  int x_pos = (int)(uintptr_t)lv_obj_get_user_data(btn_unit);
-  //printf("x position for gauge: %d\n", x_pos);
-  lv_obj_t * tile_parent = s->tile;
+ // Read selected count (Index 0=1 gauge, 1=2 gauges, 2=3 gauges)
+ uint16_t selected_cfg = lv_roller_get_selected(roller);
+ int x_pos = (int)(uintptr_t)lv_obj_get_user_data(btn_unit);
+ //printf("x position for gauge: %d\n", x_pos);
+ lv_obj_t * tile_parent = s->tile;
 
-  // MUST remove objects from encoder group BEFORE deleting parent container
-  lv_group_remove_obj(roller);
-  lv_obj_delete(roller);
+ // MUST remove objects from encoder group BEFORE deleting parent container
+ lv_group_remove_obj(roller);
+ lv_obj_delete(roller);
 
-  const gauge_config_t * cfg = NULL;
+ const gauge_config_t * cfg = NULL;
 
-  switch (selected_cfg) {
-    case 0: cfg = &OIL_PRESS_CONFIG; break;
-    case 1: cfg = &OIL_TEMP_CONFIG; break;
-    case 2: cfg = &WATER_TEMP_CONFIG; break;
-    case 3: cfg = &BATTERY_VOLTAGE_CONFIG; break;
-    default: return;
-  }
+ switch (selected_cfg) {
+   case 0: cfg = &OIL_PRESS_CONFIG; break;
+   case 1: cfg = &OIL_TEMP_CONFIG; break;
+   case 2: cfg = &WATER_TEMP_CONFIG; break;
+   case 3: cfg = &BATTERY_VOLTAGE_CONFIG; break;
+   default: return;
+ }
 
-  lv_obj_delete(btn_unit);
-  gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, s->theme->gauge_theme, cfg);
-  lv_obj_set_user_data(g->gauge_cell, (void *)(uintptr_t)x_pos);
-  if (s->encoder_group && g->gauge_cell) {
-    lv_group_add_obj(s->encoder_group, g->gauge_cell);
-  }
-  if (s->gauge_count < MAX_GAUGES) {
-    s->gauges[s->gauge_count] = g;
-    s->gauge_count++;
-  }
-  lv_obj_add_event_cb(g->gauge_cell, gauge_delete_cb, LV_EVENT_CLICKED, s);
+ lv_obj_delete(btn_unit);
+ gauge_t * g = gauge_create(tile_parent, x_pos, s->width / s->max_gauges, s->height, s->theme->gauge_theme, cfg);
+ lv_obj_set_user_data(g->gauge_cell, (void *)(uintptr_t)x_pos);
+ if (s->encoder_group && g->gauge_cell) {
+   lv_group_add_obj(s->encoder_group, g->gauge_cell);
+ }
+ if (s->gauge_count < MAX_GAUGES) {
+   s->gauges[s->gauge_count] = g;
+   s->gauge_count++;
+ }
+ lv_obj_add_event_cb(g->gauge_cell, gauge_delete_cb, LV_EVENT_CLICKED, s);
 }
 
 /**

@@ -12,7 +12,7 @@ const gauge_config_t OIL_PRESS_CONFIG = {
   .show_redline = true,
   .red_line_begin = 2.0f, .red_line_end = 8.0f, // 0.0 to 1.0 bar
   .n_ticks = 6, .ticks_period = 1,
-  .title_content = "OIL_PRESS",
+  .title_content = "OIL PRESSURE",
   .unit = "bar",
   .icon_src = &oil_pressure
 };
@@ -24,7 +24,7 @@ const gauge_config_t WATER_TEMP_CONFIG = {
     .show_redline = true,
     .red_line_begin = 1050.0f, .red_line_end = 1296.0f, // 105 to 150ish °C
     .n_ticks = 5, .ticks_period = 1,
-    .title_content = "COOLANT_TEMP",
+    .title_content = "COOLANT TEMP",
     .unit = "ºC",
     .icon_src = &water_temp
 };
@@ -36,7 +36,7 @@ const gauge_config_t BATTERY_VOLTAGE_CONFIG = {
     .show_redline = true,
     .red_line_begin = 102.0f, .red_line_end = 122.0f, // 10.2 to 12.2ish °C
     .n_ticks = 6, .ticks_period = 1,
-    .title_content = "BATTERY_VOLT",
+    .title_content = "BATTERY VOLT",
     .unit = "V",
     .icon_src = &battery_voltage
 };
@@ -48,7 +48,7 @@ const gauge_config_t OIL_TEMP_CONFIG = {
     .show_redline = true,
     .red_line_begin = 1150.0f, .red_line_end = 1370.0f, // 115 to 140ish °C
     .n_ticks = 5, .ticks_period = 1,
-    .title_content = "OIL_TEMP",
+    .title_content = "OIL TEMP",
     .unit = "ºC",
     .icon_src = &oil_temp
 };

@@ -3,36 +3,12 @@
 //  *
 //  */
 
-// /*********************
-//  *      DEFINES
-//  *********************/
-
-// /**********************
-//  *      TYPEDEFS
-//  **********************/
-
-// /**********************
-//  *  STATIC PROTOTYPES
-//  **********************/
-
-// /**********************
-//  *  STATIC VARIABLES
-//  **********************/
-
-// /**********************
-//  *      MACROS
-//  **********************/
-
-// /**********************
-//  *   GLOBAL FUNCTIONS
-//  **********************/
-
 /*********************
  *      INCLUDES
  *********************/
 
 #ifndef _DEFAULT_SOURCE
-  #define _DEFAULT_SOURCE /* needed for usleep() */
+  #define _DEFAULT_SOURCE
 #endif
 
 #include <stdlib.h>
@@ -53,7 +29,6 @@
 float oil_pr = 0.0f;
 float bat_volt = 10.0f;
 float cool_temp = 45.0f;
-
 
 /**********************
  *   STATIC FUNCTIONS
